@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Download } from 'lucide-react';
 import AnimatedCounter from './AnimatedCounter';
 import { STORAGE_KEYS } from '../data/constants';
 
@@ -17,6 +17,8 @@ export default function Navbar({
   totalCreditsCount,
   onResetClick,
   triggerToast,
+  showInstallBtn,
+  onInstallClick,
 }) {
   return (
     <nav className="fixed top-0 left-0 right-0 h-16 bg-canvas border-b border-hairline z-50">
@@ -126,6 +128,17 @@ export default function Navbar({
               {activeCompulsoryCredits} ({totalCreditsCount}) CREDITS
             </div>
           </div>
+
+          {showInstallBtn && (
+            <button
+              onClick={onInstallClick}
+              title="Install application"
+              className="p-2 sm:px-4 sm:py-2 border border-hairline hover:border-m-blue-light hover:text-m-blue-light text-muted-text rounded-none transition-colors uppercase font-bmw-display font-bold text-[10px] sm:text-xs tracking-wider flex items-center gap-1.5 shrink-0 cursor-pointer"
+            >
+              <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-m-blue-light" />
+              <span className="hidden sm:inline text-white">Install App</span>
+            </button>
+          )}
 
           <button
             onClick={onResetClick}

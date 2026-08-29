@@ -77,3 +77,12 @@ body {
 .animate-heart-color-switch {
   animation: heart-pulse-color 2s infinite ease-in-out;
 }
+
+/* Utility to hide scrollbars while preserving scrolling function */
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}

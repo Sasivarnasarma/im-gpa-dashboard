@@ -7,4 +7,5 @@ export const STORAGE_KEYS = {
   SPECIALIZATION: 'mit-gpa-calculator-specialization',
   SECURITY_ACCEPTED: 'mit-gpa-calculator-security-accepted',
   INSTALL_PROMPT_DISMISSED: 'mit-gpa-calculator-install-prompt-dismissed',
+  INSTALLED: 'mit-gpa-calculator-installed',
 };

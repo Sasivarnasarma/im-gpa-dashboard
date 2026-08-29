@@ -34,9 +34,11 @@ export default function SemesterCard({
                     </span>
                   )}
                 </div>
-                <span className="block text-xs font-semibold text-white truncate mt-1">
-                  {mod.name}
-                </span>
+                <div className="overflow-x-auto whitespace-nowrap md:whitespace-normal scrollbar-none mt-1">
+                  <span className="inline-block md:block text-xs font-semibold text-white leading-tight">
+                    {mod.name}
+                  </span>
+                </div>
                 <span className="text-[9px] text-muted-text mt-0.5 block font-mono">
                   {mod.cr === 0 ? 'NON-CREDIT' : `${mod.cr} CREDITS`}
                   {mod.nonGpa && ' • NON-GPA'}

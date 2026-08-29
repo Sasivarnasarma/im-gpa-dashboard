@@ -48,7 +48,10 @@ const sortModules = (moduleList) => {
 const getDismissTimestamp = () => Date.now().toString();
 
 const isRunningStandalone = () =>
-  window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  window.matchMedia('(display-mode: standalone)').matches ||
+  window.matchMedia('(display-mode: fullscreen)').matches ||
+  window.matchMedia('(display-mode: minimal-ui)').matches ||
+  window.navigator.standalone === true;
 
 export default function App() {
   const [grades, setGrades] = useState(() => {
@@ -80,6 +83,7 @@ export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installPromptCompleted, setInstallPromptCompleted] = useState(() => {
     if (isRunningStandalone()) return true;
+    if (localStorage.getItem(STORAGE_KEYS.INSTALLED) === 'true') return true;
 
     const lastDismissed = localStorage.getItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED);
     const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
@@ -94,21 +98,57 @@ export default function App() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [toast, setToast] = useState(null);
 
-  // Track the native PWA install prompt trigger
+  const triggerToast = (msg) => {
+    setToast(msg);
+  };
+
+  // Track the native PWA install prompt trigger and appinstalled event
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
     };
+    const handleAppInstalled = () => {
+      localStorage.setItem(STORAGE_KEYS.INSTALLED, 'true');
+      setInstallPromptCompleted(true);
+      triggerToast('PWA INSTALLED SUCCESSFULLY');
+    };
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
   }, []);
+
+  // Disable body scrolling when any overlay/onboarding modal is active
+  useEffect(() => {
+    const isAnyModalOpen =
+      !securityAccepted ||
+      (securityAccepted && !installPromptCompleted) ||
+      (securityAccepted && installPromptCompleted && !pathway) ||
+      showResetModal ||
+      showDeveloperModal;
+
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [securityAccepted, installPromptCompleted, pathway, showResetModal, showDeveloperModal]);
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       triggerToast(`INSTALLATION: ${outcome.toUpperCase()}`);
+      if (outcome === 'accepted') {
+        localStorage.setItem(STORAGE_KEYS.INSTALLED, 'true');
+      }
       setDeferredPrompt(null);
     } else {
       triggerToast('INSTALLING SYSTEM... CHECK BROWSER BAR/MENU');
@@ -152,10 +192,6 @@ export default function App() {
     }
   }, [toast]);
 
-  const triggerToast = (msg) => {
-    setToast(msg);
-  };
-
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -185,10 +221,12 @@ export default function App() {
     setSpecialization('undecided');
     setModalStep(1);
     setSecurityAccepted(false);
-    // Re-check standalone mode rather than unconditionally clearing it — a
-    // user who resets while already running the installed PWA shouldn't be
+    // Re-check standalone mode and installed flag rather than unconditionally clearing it — a
+    // user who resets while already having installed the PWA shouldn't be
     // shown "INSTALL AS APP" again.
-    setInstallPromptCompleted(isRunningStandalone());
+    setInstallPromptCompleted(
+      isRunningStandalone() || localStorage.getItem(STORAGE_KEYS.INSTALLED) === 'true'
+    );
     triggerToast('DATABASE FULLY RESET');
   };
 
@@ -233,6 +271,11 @@ export default function App() {
         totalCreditsCount={totalCreditsCount}
         onResetClick={() => setShowResetModal(true)}
         triggerToast={triggerToast}
+        showInstallBtn={!isRunningStandalone()}
+        onInstallClick={() => {
+          setInstallPromptCompleted(false);
+          triggerToast('INSTALLER RETRIEVED');
+        }}
       />
 
       {/* Main Body Spacer */}
