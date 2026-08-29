@@ -19,6 +19,7 @@ export default function Navbar({
   triggerToast,
   showInstallBtn,
   onInstallClick,
+  onCgpaClick,
 }) {
   return (
     <nav className="fixed top-0 left-0 right-0 h-16 bg-canvas border-b border-hairline z-50">
@@ -39,7 +40,12 @@ export default function Navbar({
         {/* Nav Actions */}
         <div className="flex items-center gap-4">
           {/* CGPA display in sticky navbar */}
-          <div className="px-3 py-1.5 border border-hairline bg-surface-soft font-mono text-xs select-none">
+          <div
+            onClick={onCgpaClick}
+            role="button"
+            title="Scroll to Executive Summary"
+            className="px-3 py-1.5 border border-hairline bg-surface-soft font-mono text-xs cursor-pointer hover:border-m-blue-light transition-colors select-none"
+          >
             <span className="text-muted-text font-bold uppercase text-[9px] mr-2">CGPA:</span>
             <span
               className={`font-black ${cgpa > 0 && cgpa < 2.0 ? 'text-m-red animate-pulse' : 'text-white'}`}

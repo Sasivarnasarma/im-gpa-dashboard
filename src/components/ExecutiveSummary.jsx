@@ -28,7 +28,7 @@ export default function ExecutiveSummary({
   const honors = getHonoursClass(cgpa);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div id="executive-summary" className="flex flex-col gap-8">
       {/* Executive Summary */}
       <div className="border border-hairline bg-surface-soft p-5 rounded-none flex flex-col gap-4">
         <span className="font-bmw-display font-bold text-[11px] uppercase tracking-widest text-white border-b border-hairline pb-2.5">

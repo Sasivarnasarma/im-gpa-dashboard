@@ -196,6 +196,15 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const scrollToExecutiveSummary = () => {
+    const el = document.getElementById('executive-summary');
+    if (el) {
+      const yOffset = -80; // height of sticky navbar + offset space
+      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
   const handleGradeChange = (code, val) => {
     setGrades((prev) => {
       const updated = { ...prev };
@@ -276,6 +285,7 @@ export default function App() {
           setInstallPromptCompleted(false);
           triggerToast('INSTALLER RETRIEVED');
         }}
+        onCgpaClick={scrollToExecutiveSummary}
       />
 
       {/* Main Body Spacer */}
