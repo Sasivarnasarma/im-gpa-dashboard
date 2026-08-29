@@ -15,6 +15,7 @@ import ExecutiveSummary from './components/ExecutiveSummary';
 // their chunk fetches. Both are tiny (a few KB) — not what made the bundle big.
 import SecurityModal from './components/SecurityModal';
 import WelcomeModal from './components/WelcomeModal';
+import InstallPromptModal from './components/InstallPromptModal';
 
 // Lazily loaded: only needed once grades exist or a modal is explicitly
 // opened by the user, so they don't have to ship in the initial bundle.
@@ -37,6 +38,8 @@ const sortModules = (moduleList) => {
     return getWeight(a) - getWeight(b);
   });
 };
+
+const getDismissTimestamp = () => Date.now().toString();
 
 export default function App() {
   const [grades, setGrades] = useState(() => {
@@ -65,10 +68,53 @@ export default function App() {
     return localStorage.getItem(STORAGE_KEYS.SECURITY_ACCEPTED) === 'true';
   });
 
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [installPromptCompleted, setInstallPromptCompleted] = useState(() => {
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true;
+    if (isStandalone) return true;
+
+    const lastDismissed = localStorage.getItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED);
+    const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
+    if (lastDismissed && parseInt(lastDismissed, 10) > threeDaysAgo) {
+      return true;
+    }
+    return false;
+  });
+
   const [showResetModal, setShowResetModal] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [toast, setToast] = useState(null);
+
+  // Track the native PWA install prompt trigger
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      triggerToast(`INSTALLATION: ${outcome.toUpperCase()}`);
+      setDeferredPrompt(null);
+    } else {
+      triggerToast('INSTALLING SYSTEM... CHECK BROWSER BAR/MENU');
+    }
+    setInstallPromptCompleted(true);
+  };
+
+  const handleDismissClick = () => {
+    localStorage.setItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED, getDismissTimestamp());
+    setInstallPromptCompleted(true);
+    triggerToast('INSTALL LATER (REMINDER IN 3 DAYS)');
+  };
 
   // Sync scroll listener for Circular progress arrow indicator
   useEffect(() => {
@@ -126,10 +172,12 @@ export default function App() {
     localStorage.removeItem(STORAGE_KEYS.PATHWAY);
     localStorage.removeItem(STORAGE_KEYS.SPECIALIZATION);
     localStorage.removeItem(STORAGE_KEYS.SECURITY_ACCEPTED);
+    localStorage.removeItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED);
     setPathway(null);
     setSpecialization('undecided');
     setModalStep(1);
     setSecurityAccepted(false);
+    setInstallPromptCompleted(false);
     triggerToast('DATABASE FULLY RESET');
   };
 
@@ -427,16 +475,51 @@ export default function App() {
                   {/* Curriculums */}
                   {yearModules.length === 0 ? (
                     currentPathway === 'undecided' ? (
-                      <div className="border border-hairline bg-surface-soft p-8 text-center flex flex-col items-center gap-3 select-none">
-                        <Info className="w-8 h-8 text-m-blue-light" />
-                        <h3 className="font-bmw-display font-bold text-sm text-white uppercase tracking-wider">
-                          DEGREE PROGRAMME NOT SELECTED
-                        </h3>
-                        <p className="text-[11px] text-muted-text max-w-sm leading-relaxed">
-                          Please select B.Sc. Hons in IT or MIT to view Year 2 and Year 3 course
-                          curricula.
-                        </p>
-                      </div>
+                      year === 2 ? (
+                        <div className="border border-hairline bg-surface-soft p-8 text-center flex flex-col items-center gap-4 select-none">
+                          <Info className="w-8 h-8 text-m-blue-light" />
+                          <h3 className="font-bmw-display font-bold text-sm text-white uppercase tracking-wider">
+                            DEGREE PROGRAMME NOT SELECTED
+                          </h3>
+                          <p className="text-[11px] text-muted-text max-w-md leading-relaxed">
+                            Please select your B.Sc. (Hons) degree programme to load the
+                            corresponding Year 2 and Year 3 course curricula.
+                          </p>
+                          <div className="flex gap-4 mt-2 justify-center font-mono">
+                            <button
+                              onClick={() => {
+                                localStorage.setItem(STORAGE_KEYS.PATHWAY, 'it');
+                                setPathway('it');
+                                triggerToast('DEGREE: B.SC. HONS IN IT INITIALIZED');
+                              }}
+                              className="px-5 py-2.5 border border-hairline hover:border-m-red text-white text-[10px] font-bold uppercase transition-colors cursor-pointer bg-surface-card"
+                            >
+                              B.Sc. (Hons) in IT
+                            </button>
+                            <button
+                              onClick={() => {
+                                localStorage.setItem(STORAGE_KEYS.PATHWAY, 'mit');
+                                setPathway('mit');
+                                triggerToast('DEGREE: B.SC. HONS IN MIT INITIALIZED');
+                              }}
+                              className="px-5 py-2.5 border border-hairline hover:border-m-red text-white text-[10px] font-bold uppercase transition-colors cursor-pointer bg-surface-card"
+                            >
+                              B.Sc. (Hons) in MIT
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="border border-hairline bg-surface-soft p-8 text-center flex flex-col items-center gap-3 select-none">
+                          <Info className="w-8 h-8 text-m-blue-light" />
+                          <h3 className="font-bmw-display font-bold text-sm text-white uppercase tracking-wider">
+                            DEGREE PROGRAMME NOT SELECTED
+                          </h3>
+                          <p className="text-[11px] text-muted-text max-w-sm leading-relaxed">
+                            Please select B.Sc. Hons in IT or MIT in the Second Year block to view
+                            the Third Year course curriculum.
+                          </p>
+                        </div>
+                      )
                     ) : year === 3 && currentPathway === 'mit' && specialization === 'undecided' ? (
                       <div className="border border-hairline bg-surface-soft p-8 text-center flex flex-col items-center gap-4 select-none">
                         <Info className="w-8 h-8 text-m-blue-light" />
@@ -601,9 +684,16 @@ export default function App() {
         }}
       />
 
+      {/* PWA Install Prompt Modal Overlay */}
+      <InstallPromptModal
+        isOpen={securityAccepted && !installPromptCompleted}
+        onInstall={handleInstallClick}
+        onDismiss={handleDismissClick}
+      />
+
       {/* Onboarding Welcome Modal Overlay */}
       <WelcomeModal
-        isOpen={securityAccepted && !pathway}
+        isOpen={securityAccepted && installPromptCompleted && !pathway}
         modalStep={modalStep}
         setModalStep={setModalStep}
         onSelectPathway={(path) => {

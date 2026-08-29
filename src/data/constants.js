@@ -6,4 +6,5 @@ export const STORAGE_KEYS = {
   PATHWAY: 'mit-gpa-calculator-pathway',
   SPECIALIZATION: 'mit-gpa-calculator-specialization',
   SECURITY_ACCEPTED: 'mit-gpa-calculator-security-accepted',
+  INSTALL_PROMPT_DISMISSED: 'mit-gpa-calculator-install-prompt-dismissed',
 };
