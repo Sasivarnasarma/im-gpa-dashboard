@@ -42,7 +42,7 @@ jobs:
       - name: Run Unit Tests
         id: test
         continue-on-error: true
-        run: pnpm run test | tee test-output.txt
+        run: pnpm run test:ci
 
       - name: Run Build
         id: build
@@ -107,17 +107,7 @@ jobs:
             echo "A production-ready build has been zipped and uploaded. You can download the **production-build** bundle from the **Artifacts** section at the bottom of this run summary page." >> $GITHUB_STEP_SUMMARY
           fi
 
-          if [ -f test-output.txt ]; then
-            TEST_SUM=$(grep -A 3 "Test Files" test-output.txt || true)
-            CLEAN_SUM=$(echo "$TEST_SUM" | sed 's/\x1b\[[0-9;]*m//g' || true)
-            if [ ! -z "$CLEAN_SUM" ]; then
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "### 🧪 Test Suite Results" >> $GITHUB_STEP_SUMMARY
-              echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
-              echo "$CLEAN_SUM" >> $GITHUB_STEP_SUMMARY
-              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            fi
-          fi
+          node .github/workflows/parse-test-results.cjs
 
       - name: Set Workflow Exit Status
         if: always()

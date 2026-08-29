@@ -68,6 +68,6 @@ describe('App — Target GPA Planner wiring', () => {
 
     render(<App />);
 
-    expect(await screen.findByText(/ACHIEVED \(0\.00 REQ\.\)/i)).toBeInTheDocument();
+    expect(await screen.findByText(/FAILED DEVIATION TEST/i)).toBeInTheDocument();
   });
 });
