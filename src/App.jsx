@@ -41,6 +41,9 @@ const sortModules = (moduleList) => {
 
 const getDismissTimestamp = () => Date.now().toString();
 
+const isRunningStandalone = () =>
+  window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
 export default function App() {
   const [grades, setGrades] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.GRADES);
@@ -70,10 +73,7 @@ export default function App() {
 
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installPromptCompleted, setInstallPromptCompleted] = useState(() => {
-    const isStandalone =
-      window.matchMedia('(display-mode: standalone)').matches ||
-      window.navigator.standalone === true;
-    if (isStandalone) return true;
+    if (isRunningStandalone()) return true;
 
     const lastDismissed = localStorage.getItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED);
     const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
@@ -107,6 +107,8 @@ export default function App() {
     } else {
       triggerToast('INSTALLING SYSTEM... CHECK BROWSER BAR/MENU');
     }
+
+    localStorage.setItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED, getDismissTimestamp());
     setInstallPromptCompleted(true);
   };
 
@@ -177,7 +179,10 @@ export default function App() {
     setSpecialization('undecided');
     setModalStep(1);
     setSecurityAccepted(false);
-    setInstallPromptCompleted(false);
+    // Re-check standalone mode rather than unconditionally clearing it — a
+    // user who resets while already running the installed PWA shouldn't be
+    // shown "INSTALL AS APP" again.
+    setInstallPromptCompleted(isRunningStandalone());
     triggerToast('DATABASE FULLY RESET');
   };
 
