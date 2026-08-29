@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AnimatedCounter from './AnimatedCounter';
+import { computeTargetPlan } from '../lib/targetPlan';
 
 export default function TargetPlanner({
   totalGpaCredits,
@@ -9,34 +10,13 @@ export default function TargetPlanner({
 }) {
   const [targetGPA, setTargetGPA] = useState('3.70');
 
-  const currentCGPA = totalGpaCredits > 0 ? totalWeightedPoints / totalGpaCredits : 0;
-  const numTarget = parseFloat(targetGPA) || 0;
-
-  // Total points needed to reach target CGPA in the entire curriculum
-  const totalPointsNeeded = numTarget * curriculumTotalGpaCredits;
-  // Points still needed
-  const pointsNeeded = totalPointsNeeded - totalWeightedPoints;
-
-  // Average GPA needed in the ungraded credits
-  let avgGpaNeeded = 0;
-  let status = 'possible'; // 'possible', 'impossible-high', 'impossible-low', 'already-achieved'
-
-  if (ungradedGpaCredits > 0) {
-    avgGpaNeeded = pointsNeeded / ungradedGpaCredits;
-    if (avgGpaNeeded > 4.0) {
-      status = 'impossible-high';
-    } else if (avgGpaNeeded < 0) {
-      status = 'already-achieved';
-      avgGpaNeeded = 0;
-    }
-  } else {
-    // No ungraded credits left
-    if (currentCGPA >= numTarget) {
-      status = 'already-achieved';
-    } else {
-      status = 'impossible-high';
-    }
-  }
+  const { currentCGPA, numTarget, avgGpaNeeded, status } = computeTargetPlan({
+    totalGpaCredits,
+    totalWeightedPoints,
+    ungradedGpaCredits,
+    curriculumTotalGpaCredits,
+    targetGPA,
+  });
 
   return (
     <div className="border border-hairline bg-carbon-gray p-5 rounded-none flex flex-col gap-4">
