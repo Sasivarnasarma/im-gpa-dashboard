@@ -49,7 +49,7 @@ export default function SemesterCard({
               <select
                 value={grades[mod.code] || ''}
                 onChange={(e) => onGradeChange(mod.code, e.target.value)}
-                className={`h-9 w-20 bg-canvas text-center font-mono text-xs border rounded-none focus:outline-none focus:border-white cursor-pointer px-1 py-0 ${getGradeBorderClass(grades[mod.code])}`}
+                className={`h-9 w-20 bg-canvas text-center font-mono text-xs border rounded-none focus:border-white cursor-pointer px-1 py-0 ${getGradeBorderClass(grades[mod.code])}`}
               >
                 <option value="">--</option>
                 {(mod.gradeType === 'passfail' ? PASSFAIL_OPTIONS : GRADE_OPTIONS).map((g) => (

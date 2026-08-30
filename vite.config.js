@@ -13,6 +13,7 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'icon-1024.png', 'icon-maskable-512.png'],
       devOptions: {
         enabled: true,
+        suppressWarnings: true,
       },
       manifest: {
         name: 'Kelaniya IT/MIT // GPA Dashboard',

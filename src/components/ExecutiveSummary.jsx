@@ -1,6 +1,32 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { AlertTriangle } from 'lucide-react';
 import AnimatedCounter from './AnimatedCounter';
+import { isAtRiskGpa } from '../lib/gpaEngine';
+
+// One year's GPA tile. Extracted because the three were identical apart from
+// the label and value, and the at-risk treatment now has to stay in step
+// across all of them.
+function YearGpaTile({ label, gpa }) {
+  const atRisk = isAtRiskGpa(gpa);
+
+  return (
+    <div className="bg-surface-card border border-hairline p-3 text-center">
+      <span className="block text-[8px] text-muted-text font-bold uppercase tracking-wider">
+        {label}
+      </span>
+      <span
+        className={`font-mono text-base font-bold mt-1 flex items-center justify-center gap-1 ${
+          atRisk ? 'text-m-red' : 'text-white'
+        }`}
+      >
+        {atRisk && <AlertTriangle className="w-3 h-3 shrink-0" aria-hidden="true" />}
+        <AnimatedCounter value={gpa} />
+        {atRisk && <span className="sr-only">— below the 2.00 pass threshold</span>}
+      </span>
+    </div>
+  );
+}
 
 const getHonoursClass = (gpa) => {
   if (gpa <= 0) return { label: 'AWAITING DATA', color: 'border-hairline text-muted-text/60' };
@@ -41,9 +67,17 @@ export default function ExecutiveSummary({
               CUMULATIVE GPA
             </span>
             <span
-              className={`font-mono text-3xl font-black mt-1 block ${cgpa > 0 && cgpa < 2.0 ? 'text-m-red animate-pulse' : 'text-white'}`}
+              className={`font-mono text-3xl font-black mt-1 flex items-center gap-1.5 ${
+                isAtRiskGpa(cgpa) ? 'text-m-red animate-pulse' : 'text-white'
+              }`}
             >
+              {isAtRiskGpa(cgpa) && (
+                <AlertTriangle className="w-5 h-5 shrink-0" aria-hidden="true" />
+              )}
               <AnimatedCounter value={cgpa} />
+              {isAtRiskGpa(cgpa) && (
+                <span className="sr-only">— below the 2.00 pass threshold</span>
+              )}
             </span>
           </div>
 
@@ -97,36 +131,9 @@ export default function ExecutiveSummary({
           YEAR BREAKDOWN
         </span>
         <div className="grid grid-cols-3 gap-2">
-          <div className="bg-surface-card border border-hairline p-3 text-center">
-            <span className="block text-[8px] text-muted-text font-bold uppercase tracking-wider">
-              YEAR 1
-            </span>
-            <span
-              className={`font-mono text-base font-bold mt-1 block ${y1GPA > 0 && y1GPA < 2.0 ? 'text-m-red' : 'text-white'}`}
-            >
-              <AnimatedCounter value={y1GPA} />
-            </span>
-          </div>
-          <div className="bg-surface-card border border-hairline p-3 text-center">
-            <span className="block text-[8px] text-muted-text font-bold uppercase tracking-wider">
-              YEAR 2
-            </span>
-            <span
-              className={`font-mono text-base font-bold mt-1 block ${y2GPA > 0 && y2GPA < 2.0 ? 'text-m-red' : 'text-white'}`}
-            >
-              <AnimatedCounter value={y2GPA} />
-            </span>
-          </div>
-          <div className="bg-surface-card border border-hairline p-3 text-center">
-            <span className="block text-[8px] text-muted-text font-bold uppercase tracking-wider">
-              YEAR 3
-            </span>
-            <span
-              className={`font-mono text-base font-bold mt-1 block ${y3GPA > 0 && y3GPA < 2.0 ? 'text-m-red' : 'text-white'}`}
-            >
-              <AnimatedCounter value={y3GPA} />
-            </span>
-          </div>
+          <YearGpaTile label="YEAR 1" gpa={y1GPA} />
+          <YearGpaTile label="YEAR 2" gpa={y2GPA} />
+          <YearGpaTile label="YEAR 3" gpa={y3GPA} />
         </div>
       </div>
     </div>

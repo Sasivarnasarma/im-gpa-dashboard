@@ -21,7 +21,7 @@ export default function MobileSelectorPanel({
             setPathway(val === 'undecided' ? 'undecided' : val);
             triggerToast(`DEGREE: ${val.toUpperCase()}`);
           }}
-          className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none outline-none focus:ring-0 pr-2 font-mono ${pathway === 'undecided' ? 'text-muted-text' : 'text-m-red'}`}
+          className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none focus:ring-0 pr-2 font-mono ${pathway === 'undecided' ? 'text-muted-text' : 'text-m-red'}`}
           style={{ width: pathway === 'mit' ? '58px' : pathway === 'it' ? '50px' : '100px' }}
         >
           <option value="undecided" className="bg-canvas text-muted-text">
@@ -50,7 +50,7 @@ export default function MobileSelectorPanel({
               setSpecialization(val);
               triggerToast(`SPECIALIZATION: ${val.toUpperCase()}`);
             }}
-            className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none outline-none focus:ring-0 pr-2 font-mono ${specialization === 'undecided' ? 'text-muted-text' : 'text-m-orange'}`}
+            className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none focus:ring-0 pr-2 font-mono ${specialization === 'undecided' ? 'text-muted-text' : 'text-m-orange'}`}
             style={{
               width:
                 specialization === 'bsc' || specialization === 'is'

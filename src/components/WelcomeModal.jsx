@@ -49,7 +49,7 @@ export default function WelcomeModal({
                     {/* IT Degree Button */}
                     <button
                       onClick={() => onSelectPathway('it')}
-                      className="group border border-hairline hover:border-m-red bg-surface-card p-5 text-left rounded-none transition-colors flex flex-col gap-2.5 cursor-pointer focus:outline-none font-sans"
+                      className="group border border-hairline hover:border-m-red bg-surface-card p-5 text-left rounded-none transition-colors flex flex-col gap-2.5 cursor-pointer font-sans"
                     >
                       <span className="font-bmw-display font-bold text-xs uppercase text-white group-hover:text-m-red transition-colors">
                         IT DEGREE
@@ -65,7 +65,7 @@ export default function WelcomeModal({
                     {/* MIT Degree Button */}
                     <button
                       onClick={() => setModalStep(2)}
-                      className="group border border-hairline hover:border-m-red bg-surface-card p-5 text-left rounded-none transition-colors flex flex-col gap-2.5 cursor-pointer focus:outline-none font-sans"
+                      className="group border border-hairline hover:border-m-red bg-surface-card p-5 text-left rounded-none transition-colors flex flex-col gap-2.5 cursor-pointer font-sans"
                     >
                       <span className="font-bmw-display font-bold text-xs uppercase text-white group-hover:text-m-red transition-colors">
                         MIT DEGREE
@@ -82,7 +82,7 @@ export default function WelcomeModal({
                   {/* Not Decided Yet Button */}
                   <button
                     onClick={() => onSelectPathway('undecided')}
-                    className="group border border-dashed border-hairline hover:border-white bg-surface-soft p-4 text-center rounded-none transition-colors flex flex-col items-center justify-center gap-1.5 cursor-pointer focus:outline-none font-sans"
+                    className="group border border-dashed border-hairline hover:border-white bg-surface-soft p-4 text-center rounded-none transition-colors flex flex-col items-center justify-center gap-1.5 cursor-pointer font-sans"
                   >
                     <span className="font-bmw-display font-bold text-xs uppercase text-white group-hover:text-m-blue-light transition-colors">
                       NOT DECIDED YET
@@ -114,7 +114,7 @@ export default function WelcomeModal({
                   {/* BSC */}
                   <button
                     onClick={() => onSelectSpecialization('bsc')}
-                    className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer focus:outline-none font-sans"
+                    className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer font-sans"
                   >
                     <span className="font-bmw-display font-bold text-xs uppercase text-white group-hover:text-m-orange transition-colors">
                       BSC
@@ -127,7 +127,7 @@ export default function WelcomeModal({
                   {/* OSCM */}
                   <button
                     onClick={() => onSelectSpecialization('oscm')}
-                    className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer focus:outline-none font-sans"
+                    className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer font-sans"
                   >
                     <span className="font-bmw-display font-bold text-xs uppercase text-white group-hover:text-m-orange transition-colors">
                       OSCM
@@ -140,7 +140,7 @@ export default function WelcomeModal({
                   {/* IS */}
                   <button
                     onClick={() => onSelectSpecialization('is')}
-                    className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer focus:outline-none font-sans"
+                    className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer font-sans"
                   >
                     <span className="font-bmw-display font-bold text-xs uppercase text-white group-hover:text-m-orange transition-colors">
                       IS
@@ -155,7 +155,7 @@ export default function WelcomeModal({
                   {/* Undecided / Year 1-2 fallback */}
                   <button
                     onClick={() => onSelectSpecialization('undecided')}
-                    className="group border border-dashed border-hairline hover:border-white bg-surface-soft p-3.5 text-center rounded-none transition-colors flex flex-col items-center justify-center gap-1 cursor-pointer focus:outline-none font-sans"
+                    className="group border border-dashed border-hairline hover:border-white bg-surface-soft p-3.5 text-center rounded-none transition-colors flex flex-col items-center justify-center gap-1 cursor-pointer font-sans"
                   >
                     <span className="font-bmw-display font-bold text-xs uppercase text-white group-hover:text-m-orange transition-colors">
                       NOT DECIDED YET
@@ -167,7 +167,7 @@ export default function WelcomeModal({
 
                   <button
                     onClick={() => setModalStep(1)}
-                    className="mt-2 text-center text-[9px] font-mono font-bold text-muted-text hover:text-m-orange uppercase tracking-wider transition-colors focus:outline-none cursor-pointer"
+                    className="mt-2 text-center text-[9px] font-mono font-bold text-muted-text hover:text-m-orange uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     &larr; BACK TO DEGREE SELECTION
                   </button>

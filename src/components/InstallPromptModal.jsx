@@ -37,7 +37,7 @@ export default function InstallPromptModal({ isOpen, onInstall, onDismiss }) {
               {/* Install Button */}
               <button
                 onClick={onInstall}
-                className="w-full py-3 bg-m-blue-light hover:bg-m-blue-dark text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors focus:outline-none cursor-pointer shadow-lg shadow-m-blue-light/10"
+                className="w-full py-3 bg-m-blue-light hover:bg-m-blue-dark text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors cursor-pointer shadow-lg shadow-m-blue-light/10"
               >
                 INSTALL NOW
               </button>
@@ -45,7 +45,7 @@ export default function InstallPromptModal({ isOpen, onInstall, onDismiss }) {
               {/* Dismiss Button */}
               <button
                 onClick={onDismiss}
-                className="w-full py-3 bg-surface-card border border-hairline hover:border-white text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors focus:outline-none cursor-pointer"
+                className="w-full py-3 bg-surface-card border border-hairline hover:border-white text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors cursor-pointer"
               >
                 USE IN BROWSER (NOT NOW)
               </button>

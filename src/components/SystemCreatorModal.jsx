@@ -104,7 +104,7 @@ export default function SystemCreatorModal({ isOpen, onClose }) {
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="w-full py-2.5 bg-surface-soft border border-hairline hover:border-white text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors focus:outline-none"
+                className="w-full py-2.5 bg-surface-soft border border-hairline hover:border-white text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors"
               >
                 CLOSE PROFILE
               </button>

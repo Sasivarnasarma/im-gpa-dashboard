@@ -76,7 +76,7 @@ export default function SecurityModal({ isOpen, onAccept }) {
               {/* Proceed button */}
               <button
                 onClick={onAccept}
-                className="w-full py-3 bg-m-red hover:bg-m-red/80 text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors border border-m-red flex items-center justify-center gap-1.5 cursor-pointer focus:outline-none"
+                className="w-full py-3 bg-m-red hover:bg-m-red/80 text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors border border-m-red flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 PROCEED TO SETUP &rarr;
               </button>

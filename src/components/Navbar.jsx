@@ -1,7 +1,8 @@
 import React from 'react';
-import { Trash2, Download } from 'lucide-react';
+import { Trash2, Download, AlertTriangle } from 'lucide-react';
 import AnimatedCounter from './AnimatedCounter';
 import { STORAGE_KEYS } from '../data/constants';
+import { isAtRiskGpa } from '../lib/gpaEngine';
 
 export default function Navbar({
   cgpa,
@@ -39,20 +40,26 @@ export default function Navbar({
 
         {/* Nav Actions */}
         <div className="flex items-center gap-4">
-          {/* CGPA display in sticky navbar */}
-          <div
+          {/* CGPA display in sticky navbar — doubles as a jump link */}
+          <button
+            type="button"
             onClick={onCgpaClick}
-            role="button"
             title="Scroll to Executive Summary"
-            className="px-3 py-1.5 border border-hairline bg-surface-soft font-mono text-xs cursor-pointer hover:border-m-blue-light transition-colors select-none"
+            className="px-3 py-1.5 border border-hairline bg-surface-soft font-mono text-xs cursor-pointer hover:border-m-blue-light transition-colors select-none flex items-center"
           >
             <span className="text-muted-text font-bold uppercase text-[9px] mr-2">CGPA:</span>
+            {/* Icon carries the at-risk state for anyone who can't rely on the
+                red hue alone; the sr-only text carries it to screen readers. */}
+            {isAtRiskGpa(cgpa) && (
+              <AlertTriangle className="w-3 h-3 text-m-red mr-1 shrink-0" aria-hidden="true" />
+            )}
             <span
-              className={`font-black ${cgpa > 0 && cgpa < 2.0 ? 'text-m-red animate-pulse' : 'text-white'}`}
+              className={`font-black ${isAtRiskGpa(cgpa) ? 'text-m-red animate-pulse' : 'text-white'}`}
             >
               <AnimatedCounter value={cgpa} />
             </span>
-          </div>
+            {isAtRiskGpa(cgpa) && <span className="sr-only">— below the 2.00 pass threshold</span>}
+          </button>
 
           {/* Nav Selectors Container (Desktop only) */}
           <div className="hidden md:flex items-center gap-4">
@@ -67,7 +74,7 @@ export default function Navbar({
                   setPathway(val === 'undecided' ? 'undecided' : val);
                   triggerToast(`DEGREE: ${val.toUpperCase()}`);
                 }}
-                className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none outline-none focus:ring-0 pr-2 font-mono ${pathway === 'undecided' ? 'text-muted-text' : 'text-m-red'}`}
+                className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none focus:ring-0 pr-2 font-mono ${pathway === 'undecided' ? 'text-muted-text' : 'text-m-red'}`}
                 style={{ width: pathway === 'mit' ? '58px' : pathway === 'it' ? '50px' : '100px' }}
               >
                 <option value="undecided" className="bg-canvas text-muted-text">
@@ -96,7 +103,7 @@ export default function Navbar({
                     setSpecialization(val);
                     triggerToast(`SPECIALIZATION: ${val.toUpperCase()}`);
                   }}
-                  className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none outline-none focus:ring-0 pr-2 font-mono ${specialization === 'undecided' ? 'text-muted-text' : 'text-m-orange'}`}
+                  className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none focus:ring-0 pr-2 font-mono ${specialization === 'undecided' ? 'text-muted-text' : 'text-m-orange'}`}
                   style={{
                     width:
                       specialization === 'bsc' || specialization === 'is'

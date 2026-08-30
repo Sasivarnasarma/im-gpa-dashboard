@@ -1,6 +1,6 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Info, ArrowUp, Heart } from 'lucide-react';
+import { TrendingUp, Info, ArrowUp, Heart, AlertTriangle } from 'lucide-react';
 
 // Core Components
 import TargetPlanner from './components/TargetPlanner';
@@ -31,6 +31,7 @@ import {
   computeGpaStats,
   computeTrendData,
   getGradeBorderClass,
+  isAtRiskGpa,
 } from './lib/gpaEngine';
 
 const sortModules = (moduleList) => {
@@ -192,8 +193,13 @@ export default function App() {
     }
   }, [toast]);
 
+  // Programmatic scrolling ignores the CSS scroll-behavior override, so the
+  // reduced-motion preference has to be consulted here directly.
+  const scrollBehavior = () =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: scrollBehavior() });
   };
 
   const scrollToExecutiveSummary = () => {
@@ -201,7 +207,7 @@ export default function App() {
     if (el) {
       const yOffset = -80; // height of sticky navbar + offset space
       const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      window.scrollTo({ top: y, behavior: scrollBehavior() });
     }
   };
 
@@ -365,11 +371,20 @@ export default function App() {
                     <div className="flex items-center gap-3 text-[10px] font-mono font-bold tracking-wider text-muted-text flex-nowrap">
                       <div className="px-2.5 py-1 bg-surface-soft border border-hairline uppercase flex items-center gap-1.5 shrink-0">
                         GPA:{' '}
+                        {isAtRiskGpa(yGpa) && (
+                          <AlertTriangle
+                            className="w-3 h-3 text-m-red shrink-0"
+                            aria-hidden="true"
+                          />
+                        )}
                         <span
-                          className={`font-black ${yGpa > 0 && yGpa < 2.0 ? 'text-m-red' : 'text-white'}`}
+                          className={`font-black ${isAtRiskGpa(yGpa) ? 'text-m-red' : 'text-white'}`}
                         >
                           {yGpa > 0 ? yGpa.toFixed(2) : 'AWAITING'}
                         </span>
+                        {isAtRiskGpa(yGpa) && (
+                          <span className="sr-only">— below the 2.00 pass threshold</span>
+                        )}
                       </div>
                       <div className="px-2.5 py-1 bg-surface-soft border border-hairline uppercase shrink-0">
                         COMPLETED:{' '}
@@ -503,7 +518,7 @@ export default function App() {
         <div className="max-w-360 mx-auto px-4 py-10 flex items-center justify-center">
           <button
             onClick={() => setShowDeveloperModal(true)}
-            className="group text-[10px] text-muted-text hover:text-white font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer focus:outline-none border-none bg-transparent p-0"
+            className="group text-[10px] text-muted-text hover:text-white font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer border-none bg-transparent p-0"
           >
             MADE WITH <Heart className="w-3 h-3 animate-heart-color-switch" /> BY{' '}
             <span className="underline font-bold text-white group-hover:font-black group-hover:scale-105 transition-all duration-300">
@@ -536,7 +551,7 @@ export default function App() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={scrollToTop}
-            className="fixed bottom-6 right-6 h-10 w-10 bg-surface-soft rounded-full flex items-center justify-center cursor-pointer transition-transform shadow-2xl z-40 focus:outline-none hover:scale-110"
+            className="fixed bottom-6 right-6 h-10 w-10 bg-surface-soft rounded-full flex items-center justify-center cursor-pointer transition-transform shadow-2xl z-40 hover:scale-110"
           >
             <svg className="w-10 h-10 transform -rotate-90 absolute">
               <circle

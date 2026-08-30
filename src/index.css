@@ -46,6 +46,48 @@ body {
   box-sizing: border-box;
 }
 
+/*
+ * Keyboard focus ring.
+ *
+ * Applies to keyboard navigation only (:focus-visible), so pointer clicks stay
+ * visually clean while a keyboard user can always see where they are. Wrapped
+ * in :where() for zero specificity, so any component that needs a bespoke
+ * focus treatment can override it with a plain class.
+ */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  /* Literal hex rather than var(--color-m-blue-light), matching how the rest
+     of this file is written. Note that elements carrying Tailwind's
+     `transition-colors` animate outline-color over ~150ms, so the ring fades
+     in from the element's text color rather than appearing blue instantly. */
+  outline: 2px solid #0066b1;
+  outline-offset: 2px;
+}
+
+/*
+ * Respect the OS "reduce motion" preference.
+ *
+ * Neutralizes the CSS keyframe animations (the at-risk CGPA pulse, the footer
+ * heart) and CSS transitions. Framer Motion runs its animations in JS and is
+ * unaffected by this block — it is handled separately by MotionConfig in
+ * main.jsx, and smooth scrolling is guarded in App.jsx.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Scrollbar styles matching the dark premium theme */
 ::-webkit-scrollbar {
   width: 8px;

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const jsonPath = path.join(process.cwd(), 'test/test-results.json');
+const jsonPath = path.join(process.cwd(), '.vitest/test-results.json');
 const summaryPath = process.env.GITHUB_STEP_SUMMARY;
 
 if (!summaryPath) {

@@ -33,7 +33,7 @@ export default function TargetPlanner({
             max="4.00"
             value={targetGPA}
             onChange={(e) => setTargetGPA(e.target.value)}
-            className="w-16 h-8 bg-canvas text-on-dark text-center font-mono text-xs border border-hairline focus:border-white focus:outline-none rounded-none"
+            className="w-16 h-8 bg-canvas text-on-dark text-center font-mono text-xs border border-hairline focus:border-white rounded-none"
           />
         </div>
       </div>

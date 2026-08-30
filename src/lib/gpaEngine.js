@@ -190,6 +190,17 @@ export function computeTrendData(activeModules, grades, gradeMap) {
   return trendData;
 }
 
+// The GPA floor a student must stay above to remain in good academic standing.
+export const MIN_SAFE_GPA = 2.0;
+
+// True when a GPA is both established (something has been graded) and below
+// the pass threshold. Callers use this to drive the at-risk treatment, so the
+// threshold lives in exactly one place rather than being re-tested inline in
+// each component that displays a figure.
+export function isAtRiskGpa(gpa) {
+  return gpa > 0 && gpa < MIN_SAFE_GPA;
+}
+
 // Maps a letter grade to the border/text color tier shown on each grade
 // selector (blue for A-tier, dark blue for B-tier, orange for C-tier, red
 // for everything else including ungraded... actually ungraded gets neutral).
