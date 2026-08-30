@@ -111,16 +111,16 @@ export default function WelcomeModal({
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
-                  {/* BSC */}
+                  {/* BSE */}
                   <button
-                    onClick={() => onSelectSpecialization('bsc')}
+                    onClick={() => onSelectSpecialization('bse')}
                     className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer font-sans"
                   >
                     <span className="font-bmw-display font-bold text-xs uppercase text-white group-hover:text-m-orange transition-colors">
-                      BSC
+                      BSE
                     </span>
                     <span className="text-[9px] text-muted-text leading-relaxed font-light">
-                      Business Systems Consulting
+                      Business Systems Engineering
                     </span>
                   </button>
 

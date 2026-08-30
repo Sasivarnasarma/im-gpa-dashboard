@@ -9,7 +9,7 @@
 // Returns an array of human-readable problem strings; empty means valid.
 
 const VALID_PATHWAYS = ['it', 'mit', 'both'];
-const VALID_SPECIALIZATIONS = ['bsc', 'oscm', 'is'];
+const VALID_SPECIALIZATIONS = ['bse', 'oscm', 'is'];
 const VALID_GRADE_TYPES = ['passfail'];
 const VALID_YEARS = [1, 2, 3];
 const VALID_SEMESTERS = [1, 2];

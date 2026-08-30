@@ -1,7 +1,7 @@
 import React from 'react';
 import { Trash2, Download, AlertTriangle } from 'lucide-react';
 import AnimatedCounter from './AnimatedCounter';
-import { STORAGE_KEYS } from '../data/constants';
+import { STORAGE_KEYS, SPECIALIZATION_LABELS } from '../data/constants';
 import { isAtRiskGpa } from '../lib/gpaEngine';
 
 export default function Navbar({
@@ -101,12 +101,14 @@ export default function Navbar({
                     const val = e.target.value;
                     localStorage.setItem(STORAGE_KEYS.SPECIALIZATION, val);
                     setSpecialization(val);
-                    triggerToast(`SPECIALIZATION: ${val.toUpperCase()}`);
+                    triggerToast(
+                      `SPECIALIZATION: ${SPECIALIZATION_LABELS[val] ?? val.toUpperCase()}`
+                    );
                   }}
                   className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none focus:ring-0 pr-2 font-mono ${specialization === 'undecided' ? 'text-muted-text' : 'text-m-orange'}`}
                   style={{
                     width:
-                      specialization === 'bsc' || specialization === 'is'
+                      specialization === 'bse' || specialization === 'is'
                         ? '58px'
                         : specialization === 'oscm'
                           ? '66px'
@@ -116,8 +118,8 @@ export default function Navbar({
                   <option value="undecided" className="bg-canvas text-muted-text">
                     UNDECIDED
                   </option>
-                  <option value="bsc" className="bg-canvas text-m-orange">
-                    BSC
+                  <option value="bse" className="bg-canvas text-m-orange">
+                    BSE
                   </option>
                   <option value="oscm" className="bg-canvas text-m-orange">
                     OSCM

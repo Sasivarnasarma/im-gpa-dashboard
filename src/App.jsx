@@ -25,7 +25,7 @@ const ResetModal = lazy(() => import('./components/ResetModal'));
 const SystemCreatorModal = lazy(() => import('./components/SystemCreatorModal'));
 
 import { modules, gradeMap } from './data/modules';
-import { STORAGE_KEYS } from './data/constants';
+import { STORAGE_KEYS, SPECIALIZATION_LABELS } from './data/constants';
 import {
   getActiveModules,
   computeGpaStats,
@@ -358,6 +358,9 @@ export default function App() {
                 year === 1 ? 'First Year' : year === 2 ? 'Second Year' : 'Third Year';
               const yGpa = year === 1 ? y1GPA : year === 2 ? y2GPA : y3GPA;
               const yStats = yearStats[year];
+              const hasOptional = yStats.optionalTotal > 0;
+              const compulsoryCredits = yStats.compulsoryTotal + yStats.optionalGraded;
+              const totalCredits = yStats.totalCredits;
 
               return (
                 <div key={year} className="flex flex-col gap-4">
@@ -389,7 +392,15 @@ export default function App() {
                       <div className="px-2.5 py-1 bg-surface-soft border border-hairline uppercase shrink-0">
                         COMPLETED:{' '}
                         <span className="text-white font-black">{yStats.gradedCredits}</span> /{' '}
-                        {yStats.totalCredits} CREDITS
+                        {hasOptional ? (
+                          <>
+                            <span className="text-white font-black">{compulsoryCredits}</span>{' '}
+                            <span className="text-muted-text font-normal">({totalCredits})</span>
+                          </>
+                        ) : (
+                          <span className="text-white font-black">{compulsoryCredits}</span>
+                        )}{' '}
+                        CREDITS
                       </div>
                     </div>
                   </div>
@@ -455,13 +466,13 @@ export default function App() {
                         <div className="flex gap-3 mt-2 flex-wrap justify-center font-mono">
                           <button
                             onClick={() => {
-                              localStorage.setItem(STORAGE_KEYS.SPECIALIZATION, 'bsc');
-                              setSpecialization('bsc');
-                              triggerToast('SPECIALIZATION: BSC INITIALIZED');
+                              localStorage.setItem(STORAGE_KEYS.SPECIALIZATION, 'bse');
+                              setSpecialization('bse');
+                              triggerToast('SPECIALIZATION: BSE INITIALIZED');
                             }}
                             className="px-4 py-2 border border-hairline hover:border-m-blue-light text-white text-[10px] font-bold uppercase transition-colors cursor-pointer bg-surface-card"
                           >
-                            Business Systems Consulting (BSC)
+                            Business Systems Engineering (BSE)
                           </button>
                           <button
                             onClick={() => {
@@ -628,7 +639,9 @@ export default function App() {
           localStorage.setItem(STORAGE_KEYS.SPECIALIZATION, spec);
           setSpecialization(spec);
           setPathway('mit');
-          triggerToast(`MIT DEGREE: ${spec.toUpperCase()} SPECIALIZATION INITIALIZED`);
+          triggerToast(
+            `MIT DEGREE: ${SPECIALIZATION_LABELS[spec] ?? spec.toUpperCase()} SPECIALIZATION INITIALIZED`
+          );
         }}
       />
     </div>

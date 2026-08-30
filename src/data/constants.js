@@ -9,3 +9,11 @@ export const STORAGE_KEYS = {
   INSTALL_PROMPT_DISMISSED: 'mit-gpa-calculator-install-prompt-dismissed',
   INSTALLED: 'mit-gpa-calculator-installed',
 };
+
+// Display abbreviations for the MIT Year 3 specializations
+export const SPECIALIZATION_LABELS = {
+  undecided: 'UNDECIDED',
+  bse: 'BSE',
+  oscm: 'OSCM',
+  is: 'IS',
+};

@@ -58,14 +58,14 @@ describe('validateModules', () => {
 
   it('flags a misspelled specialization key — the silent mis-classification case', () => {
     const problems = validateModules([
-      { ...valid(), y: 3, pathway: 'mit', specCompulsory: ['bsc', 'oscmm'] },
+      { ...valid(), y: 3, pathway: 'mit', specCompulsory: ['bse', 'oscmm'] },
     ]);
     expect(problems.join('\n')).toMatch(/unknown specialization "oscmm"/i);
   });
 
   it('flags a specialization listed as both compulsory and optional', () => {
     const problems = validateModules([
-      { ...valid(), y: 3, pathway: 'mit', specCompulsory: ['bsc'], specOptional: ['bsc'] },
+      { ...valid(), y: 3, pathway: 'mit', specCompulsory: ['bse'], specOptional: ['bse'] },
     ]);
     expect(problems.join('\n')).toMatch(/listed in both/i);
   });
@@ -83,14 +83,14 @@ describe('validateModules', () => {
     // Only specCompulsory drives runtime classification, so an omitted spec
     // silently becomes an elective — indistinguishable from a deliberate one.
     const problems = validateModules([
-      { ...valid(), y: 3, pathway: 'mit', specCompulsory: ['bsc'], specOptional: ['oscm'] },
+      { ...valid(), y: 3, pathway: 'mit', specCompulsory: ['bse'], specOptional: ['oscm'] },
     ]);
     expect(problems.join('\n')).toMatch(/is appear in neither|is.*neither "specCompulsory"/i);
   });
 
   it('accepts a Year 3 MIT course that classifies every specialization', () => {
     const problems = validateModules([
-      { ...valid(), y: 3, pathway: 'mit', specCompulsory: ['bsc'], specOptional: ['oscm', 'is'] },
+      { ...valid(), y: 3, pathway: 'mit', specCompulsory: ['bse'], specOptional: ['oscm', 'is'] },
     ]);
     expect(problems).toEqual([]);
   });

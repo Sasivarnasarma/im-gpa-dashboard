@@ -34,6 +34,15 @@ export const modules = [
   { code: 'DELT 11232', name: 'English for Professionals', y: 1, s: 1, cr: 2 },
   { code: 'PMAT 11212', name: 'Discrete Mathematics for Computing I', y: 1, s: 1, cr: 2 },
   { code: 'ACLT 11013', name: 'Academic Literacy I', y: 1, s: 1, cr: 0, nonGpa: true },
+  {
+    code: 'GNCT 11212',
+    name: 'Personal Progress Development I',
+    y: 1,
+    s: 1,
+    cr: 2,
+    nonGpa: true,
+    gradeType: 'passfail',
+  },
 
   // ==========================================
   // YEAR 1 SEMESTER 2 (All Common)
@@ -53,15 +62,6 @@ export const modules = [
     cr: 0,
     nonGpa: true,
     optional: true,
-  },
-  {
-    code: 'GNCT 11212',
-    name: 'Personal Progress Development I',
-    y: 1,
-    s: 2,
-    cr: 2,
-    nonGpa: true,
-    gradeType: 'passfail',
   },
 
   // ==========================================
@@ -186,7 +186,7 @@ export const modules = [
     s: 1,
     cr: 6,
     pathway: 'both',
-    specCompulsory: ['bsc', 'oscm', 'is'],
+    specCompulsory: ['bse', 'oscm', 'is'],
   },
   {
     code: 'MGTE 31373',
@@ -195,7 +195,7 @@ export const modules = [
     s: 1,
     cr: 3,
     pathway: 'both',
-    specCompulsory: ['bsc', 'oscm', 'is'],
+    specCompulsory: ['bse', 'oscm', 'is'],
   },
   {
     code: 'INTE 31393',
@@ -205,7 +205,7 @@ export const modules = [
     cr: 3,
     pathway: 'both',
     specCompulsory: ['is'],
-    specOptional: ['bsc', 'oscm'],
+    specOptional: ['bse', 'oscm'],
   },
   {
     code: 'MGTE 31383',
@@ -215,7 +215,7 @@ export const modules = [
     cr: 3,
     optional: true,
     pathway: 'both',
-    specOptional: ['bsc', 'oscm', 'is'],
+    specOptional: ['bse', 'oscm', 'is'],
   },
 
   // [IT Pathway Specific]
@@ -274,7 +274,7 @@ export const modules = [
     s: 1,
     cr: 3,
     pathway: 'mit',
-    specCompulsory: ['bsc', 'oscm', 'is'],
+    specCompulsory: ['bse', 'oscm', 'is'],
   },
   {
     code: 'MGTE 31293',
@@ -283,7 +283,7 @@ export const modules = [
     s: 1,
     cr: 3,
     pathway: 'mit',
-    specCompulsory: ['bsc'],
+    specCompulsory: ['bse'],
     specOptional: ['oscm', 'is'],
   },
   {
@@ -293,7 +293,7 @@ export const modules = [
     s: 1,
     cr: 3,
     pathway: 'mit',
-    specCompulsory: ['bsc'],
+    specCompulsory: ['bse'],
     specOptional: ['oscm', 'is'],
   },
   {
@@ -304,7 +304,7 @@ export const modules = [
     cr: 3,
     pathway: 'mit',
     specCompulsory: ['oscm'],
-    specOptional: ['bsc', 'is'],
+    specOptional: ['bse', 'is'],
   },
   {
     code: 'MGTE 31423',
@@ -313,7 +313,7 @@ export const modules = [
     s: 1,
     cr: 3,
     pathway: 'mit',
-    specCompulsory: ['bsc', 'oscm'],
+    specCompulsory: ['bse', 'oscm'],
     specOptional: ['is'],
   },
   {
@@ -323,7 +323,7 @@ export const modules = [
     s: 1,
     cr: 3,
     pathway: 'mit',
-    specOptional: ['bsc', 'oscm', 'is'],
+    specOptional: ['bse', 'oscm', 'is'],
   },
   {
     code: 'MGTE 31303',
@@ -333,7 +333,7 @@ export const modules = [
     cr: 3,
     pathway: 'mit',
     specCompulsory: ['oscm'],
-    specOptional: ['bsc', 'is'],
+    specOptional: ['bse', 'is'],
   },
   {
     code: 'INTE 31423',
@@ -343,7 +343,7 @@ export const modules = [
     cr: 3,
     pathway: 'mit',
     specCompulsory: ['is'],
-    specOptional: ['bsc', 'oscm'],
+    specOptional: ['bse', 'oscm'],
   },
   {
     code: 'INTE 31413',
@@ -353,7 +353,7 @@ export const modules = [
     cr: 3,
     pathway: 'mit',
     specCompulsory: ['is'],
-    specOptional: ['bsc', 'oscm'],
+    specOptional: ['bse', 'oscm'],
   },
   {
     code: 'MGTE 31443',
@@ -362,7 +362,7 @@ export const modules = [
     s: 1,
     cr: 3,
     pathway: 'mit',
-    specOptional: ['bsc', 'oscm', 'is'],
+    specOptional: ['bse', 'oscm', 'is'],
   },
 
   // ==========================================
@@ -376,6 +376,6 @@ export const modules = [
     s: 2,
     cr: 6,
     pathway: 'both',
-    specCompulsory: ['bsc', 'oscm', 'is'],
+    specCompulsory: ['bse', 'oscm', 'is'],
   },
 ];

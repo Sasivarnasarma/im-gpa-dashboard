@@ -13,13 +13,13 @@ const fixture = [
   { code: 'Y2-IT', name: 'Year 2 IT Only', y: 2, s: 1, cr: 3, pathway: 'it' },
   { code: 'Y2-MIT', name: 'Year 2 MIT Only', y: 2, s: 2, cr: 3, pathway: 'mit' },
   {
-    code: 'Y3-MIT-BSC-COMPULSORY',
-    name: 'Year 3 MIT, compulsory for BSC',
+    code: 'Y3-MIT-BSE-COMPULSORY',
+    name: 'Year 3 MIT, compulsory for BSE',
     y: 3,
     s: 1,
     cr: 3,
     pathway: 'mit',
-    specCompulsory: ['bsc'],
+    specCompulsory: ['bse'],
     specOptional: ['oscm'],
   },
   {
@@ -53,12 +53,12 @@ describe('getActiveModules', () => {
   });
 
   it('marks a Year 3 MIT module compulsory only for the specialization it lists', () => {
-    const forBsc = getActiveModules(fixture, 'mit', 'bsc');
-    const bscModule = forBsc.find((m) => m.code === 'Y3-MIT-BSC-COMPULSORY');
-    expect(bscModule.optional).toBe(false);
+    const forBse = getActiveModules(fixture, 'mit', 'bse');
+    const bseModule = forBse.find((m) => m.code === 'Y3-MIT-BSE-COMPULSORY');
+    expect(bseModule.optional).toBe(false);
 
     const forOscm = getActiveModules(fixture, 'mit', 'oscm');
-    const oscmModule = forOscm.find((m) => m.code === 'Y3-MIT-BSC-COMPULSORY');
+    const oscmModule = forOscm.find((m) => m.code === 'Y3-MIT-BSE-COMPULSORY');
     expect(oscmModule.optional).toBe(true);
   });
 });
@@ -112,7 +112,7 @@ describe('computeGpaStats', () => {
     const active = getActiveModules(fixture, 'mit', 'oscm');
     const stats = computeGpaStats(
       active,
-      { 'Y2-MIT': 'C', 'Y3-MIT-BSC-COMPULSORY': 'A+' },
+      { 'Y2-MIT': 'C', 'Y3-MIT-BSE-COMPULSORY': 'A+' },
       gradeMap
     );
 
@@ -134,11 +134,11 @@ describe('computeTrendData', () => {
     const active = getActiveModules(fixture, 'mit', 'oscm');
     const trend = computeTrendData(
       active,
-      { 'Y2-MIT': 'A+', 'Y3-MIT-BSC-COMPULSORY': 'C' },
+      { 'Y2-MIT': 'A+', 'Y3-MIT-BSE-COMPULSORY': 'C' },
       gradeMap
     );
 
-    // Y2-MIT is Y2S2, Y3-MIT-BSC-COMPULSORY is Y3S1 — a semester with no
+    // Y2-MIT is Y2S2, Y3-MIT-BSE-COMPULSORY is Y3S1 — a semester with no
     // graded modules in between (Y2S1) should not appear at all. Y3S2 has no
     // modules in this fixture either, but once grading has started the
     // cumulative line carries flat through every remaining semester.
