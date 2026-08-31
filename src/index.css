@@ -8,6 +8,11 @@
   --color-m-red: #e22718;
   --color-m-orange: #ff7b00;
   --color-electric-blue: #0653b6;
+  --color-tier-first: #bf9530;
+  --color-tier-upper: #5596e8;
+  --color-tier-lower: #e07b1a;
+  --color-tier-pass: #9a9a9a;
+  --color-tier-risk: #f2564a;
   --color-canvas: #000000;
   --color-surface-soft: #0d0d0d;
   --color-surface-card: #1a1a1a;
@@ -127,4 +132,39 @@ summary:focus-visible,
 }
 .scrollbar-none::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
+}
+
+/* Medal shine hover effect */
+@keyframes medal-shine {
+  from {
+    transform: translateX(-100%) rotate(-25deg);
+  }
+  to {
+    transform: translateX(200%) rotate(-25deg);
+  }
+}
+
+.medal-shine-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.medal-shine-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%) rotate(-25deg);
+}
+
+.medal-shine-container:hover::after {
+  animation: medal-shine 1.2s ease-in-out;
 }

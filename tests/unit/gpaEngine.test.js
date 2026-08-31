@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { getActiveModules, computeGpaStats, computeTrendData } from '../../src/lib/gpaEngine';
+import {
+  getActiveModules,
+  computeGpaStats,
+  computeTrendData,
+  getGpaTier,
+  isAtRiskGpa,
+  GPA_TIER,
+} from '../../src/lib/gpaEngine';
 import { gradeMap } from '../../src/data/modules';
 
 // A small, self-contained fixture that exercises every branch the real
@@ -148,5 +155,57 @@ describe('computeTrendData', () => {
     // Rolling average after both: (4.0*3 + 2.0*3) / 6 = 3.0, then flat.
     expect(trend[1].gpa).toBe(3.0);
     expect(trend[2].gpa).toBe(3.0);
+  });
+});
+
+describe('getGpaTier', () => {
+  it('reports AWAITING only when nothing has been graded', () => {
+    expect(getGpaTier(0, false)).toBe(GPA_TIER.AWAITING);
+  });
+
+  it('treats a graded 0.00 as academic risk, not as missing data', () => {
+    expect(getGpaTier(0, true)).toBe(GPA_TIER.RISK);
+    expect(isAtRiskGpa(0, true)).toBe(true);
+    expect(isAtRiskGpa(0, false)).toBe(false);
+  });
+
+  it('places each GPA in the handbook tier for its value', () => {
+    expect(getGpaTier(4.0, true)).toBe(GPA_TIER.FIRST);
+    expect(getGpaTier(3.7, true)).toBe(GPA_TIER.FIRST);
+    expect(getGpaTier(3.69, true)).toBe(GPA_TIER.UPPER);
+    expect(getGpaTier(3.3, true)).toBe(GPA_TIER.UPPER);
+    expect(getGpaTier(3.29, true)).toBe(GPA_TIER.LOWER);
+    expect(getGpaTier(3.0, true)).toBe(GPA_TIER.LOWER);
+    expect(getGpaTier(2.99, true)).toBe(GPA_TIER.PASS);
+    expect(getGpaTier(2.0, true)).toBe(GPA_TIER.PASS);
+    expect(getGpaTier(1.99, true)).toBe(GPA_TIER.RISK);
+  });
+
+  it('treats each classification boundary as inclusive of its own tier', () => {
+    expect(isAtRiskGpa(2.0, true)).toBe(false);
+    expect(getGpaTier(3.7, true)).toBe(GPA_TIER.FIRST);
+  });
+});
+
+describe('getGpaTier — floating point boundaries', () => {
+  it('classifies a GPA that lands exactly on a threshold into the higher tier', () => {
+    const cgpa = (3.3 * 3 + 3.3 * 3) / 6;
+    expect(cgpa).toBeLessThan(3.3); // the hazard this guards against
+    expect(getGpaTier(cgpa, true)).toBe(GPA_TIER.UPPER);
+  });
+
+  it('classifies every threshold reached by repeated accumulation', () => {
+    const viaAccumulation = (grade) => (grade * 3 + grade * 3) / 6;
+    expect(getGpaTier(viaAccumulation(3.7), true)).toBe(GPA_TIER.FIRST);
+    expect(getGpaTier(viaAccumulation(3.3), true)).toBe(GPA_TIER.UPPER);
+    expect(getGpaTier(viaAccumulation(3.0), true)).toBe(GPA_TIER.LOWER);
+    expect(getGpaTier(viaAccumulation(2.0), true)).toBe(GPA_TIER.PASS);
+  });
+
+  it('does not promote a GPA that is genuinely below a threshold', () => {
+    // Tolerance absorbs float noise only — it must not lift a real shortfall.
+    expect(getGpaTier(3.29, true)).toBe(GPA_TIER.LOWER);
+    expect(getGpaTier(3.2999, true)).toBe(GPA_TIER.LOWER);
+    expect(getGpaTier(1.999, true)).toBe(GPA_TIER.RISK);
   });
 });

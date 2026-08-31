@@ -274,6 +274,7 @@ export default function App() {
       {/* Top Navigation */}
       <Navbar
         cgpa={cgpa}
+        hasGradedCredits={totalGpaCredits > 0}
         pathway={pathway}
         setPathway={setPathway}
         specialization={specialization}
@@ -314,15 +315,18 @@ export default function App() {
             {/* Executive Summary */}
             <ExecutiveSummary
               cgpa={cgpa}
+              hasGradedCredits={totalGpaCredits > 0}
               gradedModulesCount={gradedModulesCount}
               activeCompulsoryCount={activeCompulsoryCount}
               totalModulesCount={totalModulesCount}
               gradedCredits={gradedCredits}
               activeCompulsoryCredits={activeCompulsoryCredits}
               totalCreditsCount={totalCreditsCount}
-              y1GPA={y1GPA}
-              y2GPA={y2GPA}
-              y3GPA={y3GPA}
+              years={[
+                { label: 'YEAR 1', gpa: y1GPA, hasGrades: yearStats[1].credits > 0 },
+                { label: 'YEAR 2', gpa: y2GPA, hasGrades: yearStats[2].credits > 0 },
+                { label: 'YEAR 3', gpa: y3GPA, hasGrades: yearStats[3].credits > 0 },
+              ]}
             />
 
             {/* Target GPA Planner */}
@@ -358,6 +362,8 @@ export default function App() {
                 year === 1 ? 'First Year' : year === 2 ? 'Second Year' : 'Third Year';
               const yGpa = year === 1 ? y1GPA : year === 2 ? y2GPA : y3GPA;
               const yStats = yearStats[year];
+              const yearHasGrades = yStats.credits > 0;
+              const yearAtRisk = isAtRiskGpa(yGpa, yearHasGrades);
               const hasOptional = yStats.optionalTotal > 0;
               const compulsoryCredits = yStats.compulsoryTotal + yStats.optionalGraded;
               const totalCredits = yStats.totalCredits;
@@ -374,18 +380,16 @@ export default function App() {
                     <div className="flex items-center gap-3 text-[10px] font-mono font-bold tracking-wider text-muted-text flex-nowrap">
                       <div className="px-2.5 py-1 bg-surface-soft border border-hairline uppercase flex items-center gap-1.5 shrink-0">
                         GPA:{' '}
-                        {isAtRiskGpa(yGpa) && (
+                        {yearAtRisk && (
                           <AlertTriangle
                             className="w-3 h-3 text-m-red shrink-0"
                             aria-hidden="true"
                           />
                         )}
-                        <span
-                          className={`font-black ${isAtRiskGpa(yGpa) ? 'text-m-red' : 'text-white'}`}
-                        >
-                          {yGpa > 0 ? yGpa.toFixed(2) : 'AWAITING'}
+                        <span className={`font-black ${yearAtRisk ? 'text-m-red' : 'text-white'}`}>
+                          {yearHasGrades ? yGpa.toFixed(2) : 'AWAITING'}
                         </span>
-                        {isAtRiskGpa(yGpa) && (
+                        {yearAtRisk && (
                           <span className="sr-only">— below the 2.00 pass threshold</span>
                         )}
                       </div>

@@ -6,6 +6,7 @@ import { isAtRiskGpa } from '../lib/gpaEngine';
 
 export default function Navbar({
   cgpa,
+  hasGradedCredits,
   pathway,
   setPathway,
   specialization,
@@ -50,15 +51,17 @@ export default function Navbar({
             <span className="text-muted-text font-bold uppercase text-[9px] mr-2">CGPA:</span>
             {/* Icon carries the at-risk state for anyone who can't rely on the
                 red hue alone; the sr-only text carries it to screen readers. */}
-            {isAtRiskGpa(cgpa) && (
+            {isAtRiskGpa(cgpa, hasGradedCredits) && (
               <AlertTriangle className="w-3 h-3 text-m-red mr-1 shrink-0" aria-hidden="true" />
             )}
             <span
-              className={`font-black ${isAtRiskGpa(cgpa) ? 'text-m-red animate-pulse' : 'text-white'}`}
+              className={`font-black ${isAtRiskGpa(cgpa, hasGradedCredits) ? 'text-m-red animate-pulse' : 'text-white'}`}
             >
               <AnimatedCounter value={cgpa} />
             </span>
-            {isAtRiskGpa(cgpa) && <span className="sr-only">— below the 2.00 pass threshold</span>}
+            {isAtRiskGpa(cgpa, hasGradedCredits) && (
+              <span className="sr-only">— below the 2.00 pass threshold</span>
+            )}
           </button>
 
           {/* Nav Selectors Container (Desktop only) */}

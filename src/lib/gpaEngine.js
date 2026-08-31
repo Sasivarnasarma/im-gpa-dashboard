@@ -190,15 +190,56 @@ export function computeTrendData(activeModules, grades, gradeMap) {
   return trendData;
 }
 
-// The GPA floor a student must stay above to remain in good academic standing.
+export const FIRST_CLASS_GPA = 3.7;
+export const SECOND_UPPER_GPA = 3.3;
+export const SECOND_LOWER_GPA = 3.0;
 export const MIN_SAFE_GPA = 2.0;
 
-// True when a GPA is both established (something has been graded) and below
-// the pass threshold. Callers use this to drive the at-risk treatment, so the
-// threshold lives in exactly one place rather than being re-tested inline in
-// each component that displays a figure.
-export function isAtRiskGpa(gpa) {
-  return gpa > 0 && gpa < MIN_SAFE_GPA;
+export const GPA_TIER = {
+  AWAITING: 'awaiting',
+  RISK: 'risk',
+  PASS: 'pass',
+  LOWER: 'lower',
+  UPPER: 'upper',
+  FIRST: 'first',
+};
+
+// Canonical names for each tier — one wording, used by every display.
+export const TIER_LABELS = {
+  [GPA_TIER.AWAITING]: 'AWAITING DATA',
+  [GPA_TIER.RISK]: 'ACADEMIC RISK',
+  [GPA_TIER.PASS]: 'PASS STANDING',
+  [GPA_TIER.LOWER]: 'SECOND CLASS LOWER',
+  [GPA_TIER.UPPER]: 'SECOND CLASS UPPER',
+  [GPA_TIER.FIRST]: 'FIRST CLASS HONOURS',
+};
+
+// Abbreviations for the medal face, where only a few characters fit.
+export const TIER_SHORT_LABELS = {
+  [GPA_TIER.RISK]: 'RISK',
+  [GPA_TIER.PASS]: 'PASS',
+  [GPA_TIER.LOWER]: '2:2',
+  [GPA_TIER.UPPER]: '2:1',
+  [GPA_TIER.FIRST]: '1ST',
+};
+
+const TIER_EPSILON = 1e-9;
+
+const meetsThreshold = (gpa, threshold) => gpa >= threshold - TIER_EPSILON;
+
+export function getGpaTier(gpa, hasGradedCredits) {
+  if (!hasGradedCredits) return GPA_TIER.AWAITING;
+  if (meetsThreshold(gpa, FIRST_CLASS_GPA)) return GPA_TIER.FIRST;
+  if (meetsThreshold(gpa, SECOND_UPPER_GPA)) return GPA_TIER.UPPER;
+  if (meetsThreshold(gpa, SECOND_LOWER_GPA)) return GPA_TIER.LOWER;
+  if (meetsThreshold(gpa, MIN_SAFE_GPA)) return GPA_TIER.PASS;
+  return GPA_TIER.RISK;
+}
+
+// True when a graded GPA sits below the pass threshold — including a 0.00
+// earned by failing, which is the single most at-risk case there is.
+export function isAtRiskGpa(gpa, hasGradedCredits) {
+  return getGpaTier(gpa, hasGradedCredits) === GPA_TIER.RISK;
 }
 
 // Maps a letter grade to the border/text color tier shown on each grade
