@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { modules, gradeMap } from '../data/modules';
 import { getActiveModules, computeGpaStats, computeTrendData, isAtRiskGpa } from '../lib/gpaEngine';
+import { assessEligibility, assessClasses, resolveAwardTier } from '../lib/degreeAudit';
+import { getGpaTier } from '../lib/gpaEngine';
 
 // Presentation order inside a semester list: common compulsory first, then
 // pathway-specific, then non-GPA, then optional.
@@ -28,6 +30,7 @@ export default function useGpaComputation(grades, pathway, specialization) {
     const activeModules = getActiveModules(modules, pathway, specialization);
     const stats = computeGpaStats(activeModules, grades, gradeMap);
     const trendData = computeTrendData(activeModules, grades, gradeMap);
+    const classes = assessClasses(activeModules, grades, gradeMap, stats.cgpa);
 
     const years = [1, 2, 3].map((year) => {
       const yearModules = activeModules.filter((m) => m.y === year);
@@ -56,6 +59,10 @@ export default function useGpaComputation(grades, pathway, specialization) {
       stats,
       trendData,
       years,
+      eligibility: assessEligibility(activeModules, grades, gradeMap, stats.cgpa),
+      classes,
+      // The class actually on offer, not the one the GPA alone would suggest.
+      awardTier: resolveAwardTier(getGpaTier(stats.cgpa, stats.totalGpaCredits > 0), classes),
     };
   }, [grades, pathway, specialization]);
 }

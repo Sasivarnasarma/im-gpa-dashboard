@@ -11,6 +11,7 @@ import MobileSelectorPanel from './components/MobileSelectorPanel';
 import YearSection from './components/YearSection';
 import ExecutiveSummary from './components/ExecutiveSummary';
 import ScrollTopButton from './components/ScrollTopButton';
+import DegreeAudit from './components/DegreeAudit';
 // Kept eager: these gate the very first render (onboarding overlay), so
 // lazy-loading them would flash the unprotected dashboard underneath while
 // their chunk fetches. Both are tiny (a few KB) — not what made the bundle big.
@@ -114,11 +115,8 @@ export default function App() {
     triggerToast('DATABASE FULLY RESET');
   };
 
-  const { currentPathway, stats, trendData, years } = useGpaComputation(
-    grades,
-    onboarding.pathway,
-    onboarding.specialization
-  );
+  const { currentPathway, stats, trendData, years, eligibility, classes, awardTier } =
+    useGpaComputation(grades, onboarding.pathway, onboarding.specialization);
 
   return (
     <div className="min-h-screen bg-canvas text-body-text selection:bg-m-blue-light selection:text-white">
@@ -175,7 +173,11 @@ export default function App() {
                 gpa: y.gpa,
                 hasGrades: y.hasGrades,
               }))}
+              awardTier={awardTier}
             />
+
+            {/* Degree eligibility & honours classification */}
+            <DegreeAudit eligibility={eligibility} classes={classes} />
 
             {/* Target GPA Planner */}
             <TargetPlanner

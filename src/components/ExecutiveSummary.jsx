@@ -275,9 +275,14 @@ export default function ExecutiveSummary({
   activeCompulsoryCredits,
   totalCreditsCount,
   years,
+  awardTier,
 }) {
-  const tier = getGpaTier(cgpa, hasGradedCredits);
-  const goalDetails = getTierGoalDetails(cgpa, tier);
+  // The badge and medal show the class actually on offer, which the handbook
+  // gates on more than GPA. The tier ladder below still tracks the GPA
+  // standing, since that is what the next threshold is measured against.
+  const gpaTier = getGpaTier(cgpa, hasGradedCredits);
+  const tier = awardTier ?? gpaTier;
+  const goalDetails = getTierGoalDetails(cgpa, gpaTier);
   const atRisk = isAtRiskGpa(cgpa, hasGradedCredits);
 
   return (
