@@ -18,7 +18,6 @@ export default function InstallPromptModal({ isOpen, onInstall, onDismiss }) {
             transition={{ delay: 0.1, duration: 0.4 }}
             className="border border-hairline bg-surface-soft p-6 sm:p-8 rounded-none max-w-md w-full flex flex-col gap-6 relative text-center"
           >
-            {/* M Stripe top border */}
             <MStripeDivider />
 
             <div className="text-center mt-2">
@@ -33,8 +32,8 @@ export default function InstallPromptModal({ isOpen, onInstall, onDismiss }) {
               WILL LOAD FASTER, WORK OFFLINE, AND LAUNCH DIRECTLY FROM YOUR HOME SCREEN.
             </p>
 
+            {/* Action Buttons */}
             <div className="flex flex-col gap-3 mt-2 w-full">
-              {/* Install Button */}
               <button
                 onClick={onInstall}
                 className="w-full py-3 bg-m-blue-light hover:bg-m-blue-dark text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors cursor-pointer shadow-lg shadow-m-blue-light/10"
@@ -42,7 +41,6 @@ export default function InstallPromptModal({ isOpen, onInstall, onDismiss }) {
                 INSTALL NOW
               </button>
 
-              {/* Dismiss Button */}
               <button
                 onClick={onDismiss}
                 className="w-full py-3 bg-surface-card border border-hairline hover:border-white text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors cursor-pointer"

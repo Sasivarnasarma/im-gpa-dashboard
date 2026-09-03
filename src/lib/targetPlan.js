@@ -1,9 +1,4 @@
-// Pure "what average do I still need" calculation behind the Target GPA
-// Planner. Extracted so the branching (possible / impossible / already
-// achieved) can be unit-tested directly against known inputs — this is the
-// exact logic that silently broke when App.jsx once passed it the wrong
-// prop names (see audit history): every value below came through as
-// `undefined`, and the math still "ran" without throwing, just wrong.
+// Pure calculation for required average GPA behind the Target GPA Planner.
 export function computeTargetPlan({
   totalGpaCredits,
   totalWeightedPoints,

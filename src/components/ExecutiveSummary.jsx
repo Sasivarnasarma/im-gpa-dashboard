@@ -14,9 +14,7 @@ import {
   MIN_SAFE_GPA,
 } from '../lib/gpaEngine';
 
-// One year's GPA tile. Extracted because the three were identical apart from
-// the label and value, and the at-risk treatment now has to stay in step
-// across all of them.
+// Displays individual academic year's GPA tile
 function YearGpaTile({ label, gpa, hasGrades }) {
   const atRisk = isAtRiskGpa(gpa, hasGrades);
 
@@ -254,8 +252,7 @@ const getTierGoalDetails = (gpa, tier) => {
   };
 };
 
-// Badge colouring per tier. The wording itself comes from TIER_LABELS, so the
-// badge, the medal and the progress copy can never disagree.
+// Badge styling mapped by academic tier
 const TIER_BADGE_COLORS = {
   [GPA_TIER.AWAITING]: 'border-hairline text-muted-text/60',
   [GPA_TIER.FIRST]: 'border-tier-first/50 text-tier-first',
@@ -277,9 +274,7 @@ export default function ExecutiveSummary({
   years,
   awardTier,
 }) {
-  // The badge and medal show the class actually on offer, which the handbook
-  // gates on more than GPA. The tier ladder below still tracks the GPA
-  // standing, since that is what the next threshold is measured against.
+  // awardTier reflects handbook eligibility; gpaTier drives numerical goal progress
   const gpaTier = getGpaTier(cgpa, hasGradedCredits);
   const tier = awardTier ?? gpaTier;
   const goalDetails = getTierGoalDetails(cgpa, gpaTier);
@@ -287,12 +282,12 @@ export default function ExecutiveSummary({
 
   return (
     <div id="executive-summary" className="flex flex-col gap-8">
-      {/* Executive Summary */}
       <div className="border border-hairline bg-surface-soft p-5 rounded-none flex flex-col gap-4">
         <span className="font-bmw-display font-bold text-[11px] uppercase tracking-widest text-white border-b border-hairline pb-2.5">
           EXECUTIVE SUMMARY
         </span>
 
+        {/* Cumulative GPA & Honours Badge */}
         <div className="flex items-center justify-between gap-4">
           <div>
             <span className="block text-[8px] text-muted-text font-bold uppercase tracking-wider">
@@ -319,7 +314,7 @@ export default function ExecutiveSummary({
           </div>
         </div>
 
-        {/* Tier Progress Bar & Status details */}
+        {/* Honours Tier Progress */}
         {hasGradedCredits && (
           <div className="border-t border-hairline pt-3 mt-1 flex flex-col gap-2 font-mono select-none">
             <div className="flex items-center justify-between text-[8px] text-muted-text font-bold uppercase tracking-wider">
@@ -329,7 +324,6 @@ export default function ExecutiveSummary({
               </span>
             </div>
 
-            {/* Progress track */}
             <div className="h-1.5 w-full bg-canvas border border-hairline rounded-none overflow-hidden relative">
               <motion.div
                 className={`h-full ${atRisk ? 'bg-m-red animate-pulse' : 'bg-m-blue-light'}`}
@@ -339,13 +333,13 @@ export default function ExecutiveSummary({
               />
             </div>
 
-            {/* Status description */}
             <span className="text-[9px] text-white font-bold leading-normal">
               {goalDetails.description}
             </span>
           </div>
         )}
 
+        {/* Module & Credit Completion Stats */}
         <div className="grid grid-cols-2 gap-3 pt-2.5 border-t border-hairline border-dashed">
           <div>
             <span className="block text-[8px] text-muted-text font-bold uppercase tracking-wider">
@@ -365,7 +359,7 @@ export default function ExecutiveSummary({
           </div>
         </div>
 
-        {/* Progress bar */}
+        {/* Degree Completion Progress Bar */}
         <div className="pt-3 border-t border-hairline border-dashed">
           <span className="block text-[8px] text-muted-text font-bold uppercase tracking-wider mb-1.5">
             DEGREE COMPLETION PROGRESS
@@ -383,7 +377,7 @@ export default function ExecutiveSummary({
         </div>
       </div>
 
-      {/* Year Breakdown specs */}
+      {/* Year Breakdown Grid */}
       <div className="border border-hairline bg-surface-soft p-5 rounded-none flex flex-col gap-3">
         <span className="font-bmw-display font-bold text-[11px] uppercase tracking-widest text-white border-b border-hairline pb-2.5">
           YEAR BREAKDOWN

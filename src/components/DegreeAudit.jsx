@@ -68,10 +68,7 @@ function CriterionRow({ criterion }) {
   );
 }
 
-// Degree eligibility and honours classification, checked against every
-// handbook criterion rather than the GPA threshold alone. Collapsed by
-// default: it matters most near the end of a degree, and a student in Year 1
-// does not need a wall of pending requirements.
+// Collapsible degree audit panel checking eligibility and classification criteria
 export default function DegreeAudit({ eligibility, classes }) {
   const [open, setOpen] = useState(false);
 
@@ -110,7 +107,7 @@ export default function DegreeAudit({ eligibility, classes }) {
 
       {open && (
         <div className="px-5 pb-5 flex flex-col gap-5 border-t border-hairline pt-4">
-          {/* Eligibility */}
+          {/* Degree Eligibility */}
           <div>
             <span className="block font-mono text-[9px] uppercase tracking-widest text-muted-text mb-2">
               Eligibility for the degree
@@ -126,7 +123,7 @@ export default function DegreeAudit({ eligibility, classes }) {
             </p>
           </div>
 
-          {/* Classification */}
+          {/* Honours Classification */}
           <div className="border-t border-hairline border-dashed pt-4">
             <span className="block font-mono text-[9px] uppercase tracking-widest text-muted-text mb-2">
               Honours classification

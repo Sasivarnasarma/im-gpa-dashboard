@@ -22,11 +22,7 @@ const SPECIALIZATION_STORAGE = {
   fallback: 'undecided',
 };
 
-// Owns the three-step onboarding sequence — security policy → PWA install
-// prompt → degree & specialization selection — plus the pathway and
-// specialization preferences it produces. Those preferences stay
-// user-editable afterwards, so the raw setters are exposed for the navbar,
-// the mobile selector panel and the Year 3 empty state.
+// Manages the onboarding sequence (security, PWA install, and degree pathway)
 export default function useOnboarding(triggerToast, installPromptCompleted) {
   const [securityAccepted, setSecurityAccepted] = useLocalStorage(
     STORAGE_KEYS.SECURITY_ACCEPTED,
@@ -40,7 +36,6 @@ export default function useOnboarding(triggerToast, installPromptCompleted) {
     SPECIALIZATION_STORAGE
   );
 
-  // WelcomeModal's internal step (1 = degree, 2 = MIT specialization).
   const [modalStep, setModalStep] = useState(1);
 
   const acceptSecurity = () => {
@@ -48,13 +43,11 @@ export default function useOnboarding(triggerToast, installPromptCompleted) {
     triggerToast('LOCAL STORAGE PERMISSION ACCEPTED');
   };
 
-  // WelcomeModal and the Year 2 empty state both route through here.
   const selectPathway = (path) => {
     setPathway(path);
     triggerToast(`DEGREE: B.SC. HONS IN ${path.toUpperCase()} INITIALIZED`);
   };
 
-  // WelcomeModal's specialization selection — implies the MIT pathway.
   const selectSpecialization = (spec) => {
     setSpecialization(spec);
     setPathway('mit');
@@ -63,8 +56,6 @@ export default function useOnboarding(triggerToast, installPromptCompleted) {
     );
   };
 
-  // The Year 3 empty state's shortcut: the pathway is already MIT there, so
-  // it only sets the specialization.
   const selectSpecializationDirect = (spec) => {
     setSpecialization(spec);
     triggerToast(
@@ -72,8 +63,7 @@ export default function useOnboarding(triggerToast, installPromptCompleted) {
     );
   };
 
-  // Reset flow (ResetModal confirm): drop every onboarding decision so the
-  // overlays reappear in sequence from step 1.
+  // Reset onboarding state back to step 1
   const resetOnboarding = () => {
     setPathway(null);
     setSpecialization('undecided');
@@ -81,8 +71,7 @@ export default function useOnboarding(triggerToast, installPromptCompleted) {
     setSecurityAccepted(false);
   };
 
-  // Which overlay is up. The steps gate each other in sequence, with the
-  // install prompt sitting between security and welcome.
+  // Sequence gating for onboarding modals
   const showSecurityModal = !securityAccepted;
   const showInstallPrompt = securityAccepted && !installPromptCompleted;
   const showWelcomeModal = securityAccepted && installPromptCompleted && !pathway;

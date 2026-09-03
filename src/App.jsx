@@ -2,32 +2,23 @@ import React, { Suspense, lazy, useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Heart } from 'lucide-react';
 
-// Core Components
 import TargetPlanner from './components/TargetPlanner';
-
-// Newly Extracted Components
 import Navbar from './components/Navbar';
 import MobileSelectorPanel from './components/MobileSelectorPanel';
 import YearSection from './components/YearSection';
 import ExecutiveSummary from './components/ExecutiveSummary';
 import ScrollTopButton from './components/ScrollTopButton';
 import DegreeAudit from './components/DegreeAudit';
-// Kept eager: these gate the very first render (onboarding overlay), so
-// lazy-loading them would flash the unprotected dashboard underneath while
-// their chunk fetches. Both are tiny (a few KB) — not what made the bundle big.
+// Eagerly loaded to prevent flash during onboarding
 import SecurityModal from './components/SecurityModal';
 import WelcomeModal from './components/WelcomeModal';
 import InstallPromptModal from './components/InstallPromptModal';
 
-// Lazily loaded: only needed once grades exist or a modal is explicitly
-// opened by the user, so they don't have to ship in the initial bundle.
-// recharts (AnalyticsChart) alone was the bulk of the old 732 KB single chunk.
+// Lazily loaded components for smaller initial bundle
 const AnalyticsChart = lazy(() => import('./components/AnalyticsChart'));
 const ResetModal = lazy(() => import('./components/ResetModal'));
 const SystemCreatorModal = lazy(() => import('./components/SystemCreatorModal'));
 
-// Extracted state machines: localStorage persistence, the onboarding
-// sequence, the PWA install flow, and the GPA computation pipeline.
 import useLocalStorage from './hooks/useLocalStorage';
 import useOnboarding from './hooks/useOnboarding';
 import usePwaInstall from './hooks/usePwaInstall';
@@ -36,9 +27,6 @@ import useGpaComputation from './hooks/useGpaComputation';
 import { STORAGE_KEYS } from './data/constants';
 
 export default function App() {
-  // Toast — the global feedback channel the extracted hooks report through.
-  // Stable identity so the hooks can list it as an effect dependency without
-  // re-subscribing on every render.
   const [toast, setToast] = useState(null);
   const triggerToast = useCallback((msg) => {
     setToast(msg);
@@ -50,16 +38,12 @@ export default function App() {
     fallback: {},
   });
 
-  // App as pure orchestrator: the extracted state machines are consumed as
-  // objects (onboarding.*, pwa.*, stats.*) so every prop names where its
-  // value comes from.
   const pwa = usePwaInstall(triggerToast);
   const onboarding = useOnboarding(triggerToast, pwa.installPromptCompleted);
 
   const [showResetModal, setShowResetModal] = useState(false);
   const [showDeveloperModal, setShowDeveloperModal] = useState(false);
 
-  // Handle toast timers
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 3000);
@@ -67,7 +51,7 @@ export default function App() {
     }
   }, [toast]);
 
-  // Disable body scrolling when any overlay/onboarding modal is active
+  // Lock body scroll when overlays are active
   useEffect(() => {
     if (onboarding.isOnboardingActive || showResetModal || showDeveloperModal) {
       document.body.style.overflow = 'hidden';
@@ -80,15 +64,14 @@ export default function App() {
     };
   }, [onboarding.isOnboardingActive, showResetModal, showDeveloperModal]);
 
-  // Programmatic scrolling ignores the CSS scroll-behavior override, so the
-  // reduced-motion preference has to be consulted here directly.
+  // Respects user motion preference for programmatic scrolling
   const scrollBehavior = () =>
     window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 
   const scrollToExecutiveSummary = () => {
     const el = document.getElementById('executive-summary');
     if (el) {
-      const yOffset = -80; // height of sticky navbar + offset space
+      const yOffset = -80;
       const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: scrollBehavior() });
     }
@@ -107,7 +90,6 @@ export default function App() {
     triggerToast(`UPDATED: ${code}`);
   };
 
-  // Clear all grades handler (full factory reset)
   const handleClearAll = () => {
     setGrades({});
     onboarding.resetOnboarding();
@@ -120,7 +102,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-canvas text-body-text selection:bg-m-blue-light selection:text-white">
-      {/* Top Navigation */}
+      {/* Navigation */}
       <Navbar
         cgpa={stats.cgpa}
         hasGradedCredits={stats.totalGpaCredits > 0}
@@ -141,12 +123,11 @@ export default function App() {
         onCgpaClick={scrollToExecutiveSummary}
       />
 
-      {/* Main Body Spacer */}
       <div className="pt-24" />
 
-      {/* Content Layout */}
+      {/* Main Content Layout */}
       <main className="max-w-360 mx-auto px-4 py-8 sm:py-12 flex flex-col gap-8">
-        {/* Mobile Selector Panel */}
+        {/* Mobile Pathway Selector */}
         <MobileSelectorPanel
           pathway={onboarding.pathway}
           setPathway={onboarding.setPathway}
@@ -156,7 +137,7 @@ export default function App() {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Metrics & Analytics */}
+          {/* Analytics & Planning Sidebar */}
           <div className="lg:col-span-4 flex flex-col gap-8 lg:sticky lg:top-24">
             {/* Executive Summary */}
             <ExecutiveSummary
@@ -176,7 +157,7 @@ export default function App() {
               awardTier={awardTier}
             />
 
-            {/* Degree eligibility & honours classification */}
+            {/* Degree Audit */}
             <DegreeAudit eligibility={eligibility} classes={classes} />
 
             {/* Target GPA Planner */}
@@ -201,7 +182,7 @@ export default function App() {
             )}
           </div>
 
-          {/* Right Column: Year by Year Curriculums */}
+          {/* Curriculum Years */}
           <div className="lg:col-span-8 flex flex-col gap-10">
             {years.map((year) => (
               <YearSection
@@ -234,7 +215,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Toast Alert */}
+      {/* Toast Notification */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -249,11 +230,11 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Scroll to Top Trigger */}
+      {/* Scroll To Top */}
       <ScrollTopButton />
 
+      {/* Modals & Overlays */}
       <Suspense fallback={null}>
-        {/* Reset Confirmation Dialog */}
         <ResetModal
           isOpen={showResetModal}
           onClose={() => setShowResetModal(false)}
@@ -263,24 +244,20 @@ export default function App() {
           }}
         />
 
-        {/* Developer Profile Modal */}
         <SystemCreatorModal
           isOpen={showDeveloperModal}
           onClose={() => setShowDeveloperModal(false)}
         />
       </Suspense>
 
-      {/* Onboarding Security Modal Overlay */}
       <SecurityModal isOpen={onboarding.showSecurityModal} onAccept={onboarding.acceptSecurity} />
 
-      {/* PWA Install Prompt Modal Overlay */}
       <InstallPromptModal
         isOpen={onboarding.showInstallPrompt}
         onInstall={pwa.installFromPrompt}
         onDismiss={pwa.dismissPrompt}
       />
 
-      {/* Onboarding Welcome Modal Overlay */}
       <WelcomeModal
         isOpen={onboarding.showWelcomeModal}
         modalStep={onboarding.modalStep}

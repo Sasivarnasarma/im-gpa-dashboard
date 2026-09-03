@@ -1,12 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { computeTargetPlan } from '../../src/lib/targetPlan';
 
-// This module is the direct fix for the bug that started the whole audit:
-// App.jsx once passed TargetPlanner a set of props that didn't match what it
-// destructured, so every value below arrived as `undefined` and the planner
-// silently locked into 'impossible-high' for every student, always. These
-// tests pin the three branches down so that kind of wiring mismatch fails
-// loudly instead of shipping quietly.
+// Unit tests verifying computation branches for target GPA planning.
 describe('computeTargetPlan', () => {
   it('is possible when the required average is between 0 and 4.0', () => {
     const plan = computeTargetPlan({
@@ -23,9 +18,7 @@ describe('computeTargetPlan', () => {
   });
 
   it('is already-achieved when banked points already clear the target even before crediting the rest', () => {
-    // 34 of 36 curriculum credits already graded at a 4.0 clip banks more
-    // points than a 3.70 target needs across the whole curriculum, so even
-    // a 0.0 on the last 2 credits can't pull the CGPA below the goal.
+    // Banked points guarantee meeting target regardless of remaining grades
     const plan = computeTargetPlan({
       totalGpaCredits: 34,
       totalWeightedPoints: 34 * 4.0,
@@ -74,10 +67,8 @@ describe('computeTargetPlan', () => {
     expect(plan.status).toBe('impossible-high');
   });
 
-  it('never locks into impossible-high just because credits are ungraded (the original bug)', () => {
-    // Fresh student, nothing graded yet, realistic curriculum totals — this
-    // is exactly the state the app is in immediately after onboarding, and
-    // is what silently showed "IMPOSSIBLE (> 4.00)" under the old prop bug.
+  it('never locks into impossible-high when credits are ungraded on a fresh curriculum', () => {
+    // Fresh student with nothing graded yet and realistic curriculum totals.
     const plan = computeTargetPlan({
       totalGpaCredits: 0,
       totalWeightedPoints: 0,

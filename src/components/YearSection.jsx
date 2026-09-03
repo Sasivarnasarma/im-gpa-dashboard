@@ -3,11 +3,7 @@ import { Info, AlertTriangle } from 'lucide-react';
 import SemesterCard from './SemesterCard';
 import { getGradeBorderClass } from '../lib/gpaEngine';
 
-// One year of the right-hand curriculum column: the header badges and the
-// two semester cards — or, while the pathway/specialization is still
-// undecided, the empty state that bootstraps that choice inline. The `year`
-// view-model (sorted semester lists, badge figures, at-risk flags) is
-// precomputed by useGpaComputation.
+// Renders an academic year section with statistics header and semester cards
 export default function YearSection({
   year,
   grades,
@@ -19,11 +15,10 @@ export default function YearSection({
 }) {
   return (
     <div className="flex flex-col gap-4">
-      {/* Year Header with Stats Badge */}
+      {/* Year Header & Stats */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-hairline pb-2 font-bmw-display select-none">
         <h2 className="font-black text-lg text-white uppercase tracking-tight">{year.name}</h2>
 
-        {/* GPA & Credits badges */}
         <div className="flex items-center gap-3 text-[10px] font-mono font-bold tracking-wider text-muted-text flex-nowrap">
           <div className="px-2.5 py-1 bg-surface-soft border border-hairline uppercase flex items-center gap-1.5 shrink-0">
             GPA:{' '}
@@ -50,7 +45,6 @@ export default function YearSection({
         </div>
       </div>
 
-      {/* Curriculums */}
       {year.modules.length === 0 ? (
         currentPathway === 'undecided' ? (
           year.year === 2 ? (
@@ -124,6 +118,7 @@ export default function YearSection({
         ) : null
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          {/* Semester Cards */}
           <SemesterCard
             semLabel="Semester 01"
             modules={year.sem1}

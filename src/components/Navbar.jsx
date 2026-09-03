@@ -26,7 +26,7 @@ export default function Navbar({
   return (
     <nav className="fixed top-0 left-0 right-0 h-16 bg-canvas border-b border-hairline z-50">
       <div className="max-w-360 h-full mx-auto px-4 flex items-center justify-between">
-        {/* Logo Brand Accent */}
+        {/* Brand Logo & Title */}
         <div className="flex items-center gap-3">
           <div className="h-5 w-1 bg-m-blue-light shrink-0" />
           <div className="h-5 w-1 bg-m-blue-dark shrink-0 -ml-2" />
@@ -39,7 +39,6 @@ export default function Navbar({
           </span>
         </div>
 
-        {/* Nav Actions */}
         <div className="flex items-center gap-4">
           {/* CGPA display in sticky navbar — doubles as a jump link */}
           <button
@@ -49,8 +48,7 @@ export default function Navbar({
             className="px-3 py-1.5 border border-hairline bg-surface-soft font-mono text-xs cursor-pointer hover:border-m-blue-light transition-colors select-none flex items-center"
           >
             <span className="text-muted-text font-bold uppercase text-[9px] mr-2">CGPA:</span>
-            {/* Icon carries the at-risk state for anyone who can't rely on the
-                red hue alone; the sr-only text carries it to screen readers. */}
+            {/* At-risk visual and screen-reader indicator */}
             {isAtRiskGpa(cgpa, hasGradedCredits) && (
               <AlertTriangle className="w-3 h-3 text-m-red mr-1 shrink-0" aria-hidden="true" />
             )}
@@ -64,9 +62,8 @@ export default function Navbar({
             )}
           </button>
 
-          {/* Nav Selectors Container (Desktop only) */}
+          {/* Desktop Selectors */}
           <div className="hidden md:flex items-center gap-4">
-            {/* Degree Selector */}
             <div className="border border-hairline bg-surface-soft px-3 py-1.5 font-mono text-xs select-none flex items-center">
               <span className="text-muted-text font-bold uppercase text-[9px] mr-2">DEGREE:</span>
               <select
@@ -92,7 +89,6 @@ export default function Navbar({
               </select>
             </div>
 
-            {/* Specialization Selector (Only visible for MIT) */}
             {pathway === 'mit' && (
               <div className="border border-hairline bg-surface-soft px-3 py-1.5 font-mono text-xs select-none flex items-center">
                 <span className="text-muted-text font-bold uppercase text-[9px] mr-2">

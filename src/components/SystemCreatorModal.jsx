@@ -18,7 +18,6 @@ export default function SystemCreatorModal({ isOpen, onClose }) {
             exit={{ opacity: 0, scale: 0.95 }}
             className="bg-surface-card border border-hairline w-full max-w-md rounded-none overflow-hidden shadow-2xl relative cursor-default"
           >
-            {/* M Stripe top border */}
             <MStripeDivider />
 
             <div className="p-6 flex flex-col items-center text-center">
@@ -35,7 +34,6 @@ export default function SystemCreatorModal({ isOpen, onClose }) {
               </p>
 
               <div className="flex flex-col gap-3.5 mb-6 w-full">
-                {/* GitHub URL */}
                 <a
                   href="https://github.com/Sasivarnasarma"
                   target="_blank"
@@ -67,7 +65,6 @@ export default function SystemCreatorModal({ isOpen, onClose }) {
                   <ExternalLink className="w-3.5 h-3.5 text-muted-text group-hover:text-white transition-colors" />
                 </a>
 
-                {/* LinkedIn URL */}
                 <a
                   href="https://linkedin.com/in/Sasivarnasarma"
                   target="_blank"
@@ -101,7 +98,6 @@ export default function SystemCreatorModal({ isOpen, onClose }) {
                 </a>
               </div>
 
-              {/* Close Button */}
               <button
                 onClick={onClose}
                 className="w-full py-2.5 bg-surface-soft border border-hairline hover:border-white text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors"

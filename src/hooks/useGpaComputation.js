@@ -4,8 +4,7 @@ import { getActiveModules, computeGpaStats, computeTrendData, isAtRiskGpa } from
 import { assessEligibility, assessClasses, resolveAwardTier } from '../lib/degreeAudit';
 import { getGpaTier } from '../lib/gpaEngine';
 
-// Presentation order inside a semester list: common compulsory first, then
-// pathway-specific, then non-GPA, then optional.
+// Sort order: common compulsory -> pathway-specific -> non-GPA -> optional
 const sortModules = (moduleList) => {
   return [...moduleList].sort((a, b) => {
     const getWeight = (m) => {
@@ -20,11 +19,7 @@ const sortModules = (moduleList) => {
 
 const YEAR_NAMES = { 1: 'First Year', 2: 'Second Year', 3: 'Third Year' };
 
-// Rolls the curriculum and the entered grades into every derived figure the
-// dashboard renders: the cumulative/per-year GPA stats behind the navbar and
-// Executive Summary, the trend series behind the chart, and one view-model
-// object per year (sorted semester lists + badge figures) for the curriculum
-// column.
+// Computes cumulative/per-year GPA stats, performance trends, and year view-models
 export default function useGpaComputation(grades, pathway, specialization) {
   return useMemo(() => {
     const activeModules = getActiveModules(modules, pathway, specialization);
@@ -61,7 +56,7 @@ export default function useGpaComputation(grades, pathway, specialization) {
       years,
       eligibility: assessEligibility(activeModules, grades, gradeMap, stats.cgpa),
       classes,
-      // The class actually on offer, not the one the GPA alone would suggest.
+      // Resolves actual honours award tier factoring in handbook constraints
       awardTier: resolveAwardTier(getGpaTier(stats.cgpa, stats.totalGpaCredits > 0), classes),
     };
   }, [grades, pathway, specialization]);

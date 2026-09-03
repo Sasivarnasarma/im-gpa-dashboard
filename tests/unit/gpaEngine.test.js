@@ -9,10 +9,7 @@ import {
 } from '../../src/lib/gpaEngine';
 import { gradeMap } from '../../src/data/modules';
 
-// A small, self-contained fixture that exercises every branch the real
-// curriculum does (common, pathway-specific, nonGpa, optional, Year 3
-// specialization-gated) without depending on the real 47-entry data file —
-// so these tests don't churn every time the curriculum content changes.
+// Self-contained curriculum test fixture covering all module variations
 const fixture = [
   { code: 'Y1-COMMON', name: 'Year 1 Common', y: 1, s: 1, cr: 3 },
   { code: 'Y1-NONGPA', name: 'Year 1 Non-GPA', y: 1, s: 1, cr: 0, nonGpa: true },

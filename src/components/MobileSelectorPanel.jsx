@@ -10,7 +10,7 @@ export default function MobileSelectorPanel({
 }) {
   return (
     <div className="flex flex-col sm:flex-row gap-3 p-4 border border-hairline bg-surface-soft md:hidden select-none">
-      {/* Degree Selector */}
+      {/* Degree Pathway Selector */}
       <div className="flex items-center justify-between font-mono text-xs w-full sm:w-auto">
         <span className="text-muted-text font-bold uppercase text-[9px] mr-2">DEGREE:</span>
         <select
@@ -36,7 +36,7 @@ export default function MobileSelectorPanel({
         </select>
       </div>
 
-      {/* Specialization Selector (Only visible for MIT) */}
+      {/* MIT Specialization Selector */}
       {pathway === 'mit' && (
         <div className="flex items-center justify-between font-mono text-xs w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-hairline pt-3 sm:pt-0 sm:pl-4">
           <span className="text-muted-text font-bold uppercase text-[9px] mr-2">

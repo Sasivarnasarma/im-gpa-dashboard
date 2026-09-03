@@ -14,7 +14,6 @@ export default function ResetModal({ isOpen, onClose, onConfirm }) {
             exit={{ opacity: 0, scale: 0.95 }}
             className="bg-surface-card border border-hairline w-full max-w-md rounded-none overflow-hidden shadow-2xl relative"
           >
-            {/* M Stripe top border */}
             <MStripeDivider />
 
             <div className="p-6">
@@ -28,15 +27,14 @@ export default function ResetModal({ isOpen, onClose, onConfirm }) {
                 ACTION CANNOT BE UNDONE.
               </p>
 
+              {/* Action Buttons */}
               <div className="flex gap-4">
-                {/* Cancel Button */}
                 <button
                   onClick={onClose}
                   className="flex-1 py-2.5 border border-hairline hover:border-white text-xs font-bmw-display font-bold uppercase tracking-widest text-muted-text hover:text-white rounded-none transition-colors cursor-pointer"
                 >
                   CANCEL
                 </button>
-                {/* Confirm Delete Button */}
                 <button
                   onClick={onConfirm}
                   className="flex-1 py-2.5 bg-m-red hover:bg-m-red/80 text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors border border-m-red cursor-pointer"

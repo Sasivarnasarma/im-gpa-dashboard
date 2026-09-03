@@ -6,26 +6,8 @@ import {
   GPA_TIER,
 } from './gpaEngine';
 
-// Degree eligibility and honours classification for the three-year exit
-// degree — the BSc (IT) / BSc (MIT), handbook sections 2/2.1 and 5/5.1.
-//
-// The GPA thresholds are only one of several criteria the handbook sets. A
-// student can clear 3.70 and still not be First Class, because that class
-// also requires C or better in every graded course. Classifying on GPA alone
-// tells them they have a degree class they will not be awarded.
-//
-// Everything here is a projection: a student mid-degree has not graded most
-// of the curriculum. Each criterion therefore reports one of three states
-// rather than a bare pass/fail —
-//
-//   met     satisfied by the grades entered so far
-//   failed  cannot be satisfied even if every remaining course scores full
-//           marks (an E in a course requiring C, say)
-//   pending on track, but depends on courses not yet graded
-//
-// The four-year Honours degree uses a higher credit bar (117 rather than 99)
-// and a four-year time limit; add it alongside these when Year 4 lands.
-
+// Degree eligibility and honours classification engine for BSc (IT/MIT) exit degrees.
+// Criteria project into three states: 'met', 'pending', and 'failed'.
 export const STATUS = { MET: 'met', PENDING: 'pending', FAILED: 'failed' };
 
 // Grade-point floors, read through gradeMap so they track the grading scale.
@@ -47,9 +29,7 @@ export const EXIT_DEGREE_RULES = {
 
 const isGraded = (grades, code) => (grades[code] ?? '') !== '';
 
-// Resolves a criterion from a current value and the target it must reach,
-// given how much headroom is left. `remaining` is the most the value could
-// still grow; when it cannot close the gap the criterion is already lost.
+// Resolves criterion status based on current progress, target, and remaining headroom
 function thresholdStatus(current, target, remaining) {
   if (current >= target) return STATUS.MET;
   if (current + remaining < target) return STATUS.FAILED;
@@ -153,9 +133,7 @@ function namedCourseCriteria(activeModules, grades, gradeMap) {
   return criteria;
 }
 
-// Handbook section 2 / 5 — can this student be awarded the degree at all?
-// Distinct from the class: a 3.50 GPA is worthless if a compulsory course
-// was failed, and nothing else in the app surfaces that.
+// Assesses overall degree eligibility criteria (credit floors, minimum GPA, named courses)
 export function assessEligibility(activeModules, grades, gradeMap, cgpa) {
   const s = summarise(activeModules, grades, gradeMap);
   const R = EXIT_DEGREE_RULES;
@@ -219,8 +197,7 @@ export function assessEligibility(activeModules, grades, gradeMap, cgpa) {
   };
 }
 
-// Handbook section 2.1 / 5.1 — which class the grades support, checking all
-// the criteria rather than the GPA threshold alone.
+// Assesses honours classifications across First Class, Second Upper, and Second Lower
 export function assessClasses(activeModules, grades, gradeMap, cgpa) {
   const s = summarise(activeModules, grades, gradeMap);
   const R = EXIT_DEGREE_RULES;
@@ -330,15 +307,7 @@ export function assessClasses(activeModules, grades, gradeMap, cgpa) {
   };
 }
 
-// The honours tier to display, reconciling the GPA standing with the rest of
-// the handbook's criteria.
-//
-// GPA alone decides the non-honours states (nothing graded, at risk, a bare
-// pass). Above that, a class also has to survive its other criteria: a
-// student on 3.92 with one D clears the First Class GPA bar but fails its
-// "C or better in every course" rule, and is awarded Second Upper instead.
-// So the GPA tier is a ceiling, and this walks down from it to the best
-// class nothing has ruled out.
+// Resolves highest reachable honours class permitted by both GPA and handbook criteria
 export function resolveAwardTier(gpaTier, classes) {
   const HONOURS_ORDER = [GPA_TIER.FIRST, GPA_TIER.UPPER, GPA_TIER.LOWER];
   if (!HONOURS_ORDER.includes(gpaTier)) return gpaTier;

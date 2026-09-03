@@ -9,10 +9,7 @@ const isRunningStandalone = () =>
 
 const getDismissTimestamp = () => Date.now().toString();
 
-// Owns the native PWA install flow: captures the browser's deferred
-// beforeinstallprompt, tracks whether the in-app install prompt is complete
-// (installed, dismissed within the last 3 days, or already running
-// standalone), and exposes the handlers the install UI wires to.
+// Manages native PWA installation lifecycle and prompt cooldowns
 export default function usePwaInstall(triggerToast) {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installPromptCompleted, setInstallPromptCompleted] = useState(() => {
@@ -79,10 +76,7 @@ export default function usePwaInstall(triggerToast) {
     triggerToast('INSTALLER RETRIEVED');
   };
 
-  // Reset flow: drop the dismissal, but re-check standalone mode and the
-  // installed flag rather than clearing them — a user who resets while
-  // already having installed the PWA shouldn't be shown "INSTALL AS APP"
-  // again.
+  // Reset dismissal while preserving installed / standalone status
   const resetInstallPrompt = () => {
     localStorage.removeItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED);
     setInstallPromptCompleted(

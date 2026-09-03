@@ -12,6 +12,7 @@ export default function SemesterCard({
   return (
     <div className="border border-hairline bg-surface-card rounded-none overflow-hidden h-full flex flex-col justify-between">
       <div>
+        {/* Semester Header */}
         <div className="bg-surface-soft border-b border-hairline px-4 py-3 flex items-center justify-between">
           <span className="font-bmw-display font-bold text-xs uppercase tracking-wider text-white">
             {semLabel}
@@ -19,7 +20,7 @@ export default function SemesterCard({
           <span className={`h-2 w-2 rounded-full ${bulletColor}`} />
         </div>
 
-        {/* Modules list */}
+        {/* Modules List */}
         <div className="divide-y divide-hairline">
           {modules.map((mod) => (
             <div key={mod.code} className="p-4 flex items-center justify-between gap-4">

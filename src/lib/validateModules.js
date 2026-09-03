@@ -1,12 +1,4 @@
-// Schema validation for the hand-maintained curriculum in data/modules.js.
-//
-// Nothing else in the app checks that file's shape: a typo'd `specCompulsory`
-// key, a duplicated course code, or a missing `cr` doesn't throw — it silently
-// mis-classifies a course as optional for a whole specialization, or quietly
-// drops credits out of the GPA denominator. This module turns those into
-// loud, specific errors instead.
-//
-// Returns an array of human-readable problem strings; empty means valid.
+// Validates curriculum schema in data/modules.js; returns an array of problem strings.
 
 const VALID_PATHWAYS = ['it', 'mit', 'both'];
 const VALID_SPECIALIZATIONS = ['bse', 'oscm', 'is'];
@@ -34,8 +26,7 @@ export function validateModules(modules, gradeMap) {
     if (typeof m.code !== 'string' || m.code.trim() === '') {
       problems.push(`${label}: missing or empty "code"`);
     } else if (seenCodes.has(m.code)) {
-      // Grades are keyed by code in localStorage, so a duplicate means two
-      // courses share one grade — entering one silently fills the other.
+      // Course codes must be unique
       problems.push(`${label}: duplicate course code`);
     } else {
       seenCodes.add(m.code);

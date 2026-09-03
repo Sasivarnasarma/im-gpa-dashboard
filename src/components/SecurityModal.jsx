@@ -18,7 +18,6 @@ export default function SecurityModal({ isOpen, onAccept }) {
             transition={{ delay: 0.1, duration: 0.4 }}
             className="border border-hairline bg-surface-soft p-6 sm:p-8 rounded-none max-w-md w-full flex flex-col gap-6 relative text-center"
           >
-            {/* BMW tricolor accent bar */}
             <div className="absolute top-0 left-0 right-0 h-1 flex">
               <div className="h-full flex-1 bg-m-blue-light" />
               <div className="h-full flex-1 bg-m-blue-dark" />
@@ -40,8 +39,8 @@ export default function SecurityModal({ isOpen, onAccept }) {
               COLLECT, TRANSMIT, OR STORE YOUR DATA ON ANY REMOTE SERVERS.
             </p>
 
+            {/* Action Links & Buttons */}
             <div className="flex flex-col gap-3">
-              {/* GitHub verify button */}
               <a
                 href="https://github.com/Sasivarnasarma/im-gpa-dashboard"
                 target="_blank"
@@ -73,7 +72,6 @@ export default function SecurityModal({ isOpen, onAccept }) {
                 <ExternalLink className="w-3.5 h-3.5 text-muted-text group-hover:text-white transition-colors" />
               </a>
 
-              {/* Proceed button */}
               <button
                 onClick={onAccept}
                 className="w-full py-3 bg-m-red hover:bg-m-red/80 text-white text-xs font-bmw-display font-bold uppercase tracking-widest rounded-none transition-colors border border-m-red flex items-center justify-center gap-1.5 cursor-pointer"

@@ -1,9 +1,4 @@
-// Pure GPA calculation engine, extracted out of App.jsx so the math that
-// drives every number on the dashboard can be unit-tested independently of
-// React rendering. Behavior is unchanged from the original inline version —
-// only the "which props go where" wiring around it is what tends to break
-// (see TargetPlanner's history), which is exactly what these functions make
-// testable at the boundary.
+// Pure GPA calculation engine for curriculum tracking and analytics.
 
 // Filters the full curriculum down to what's relevant for the student's
 // pathway/specialization, and marks Year 3 MIT modules optional/compulsory
@@ -242,9 +237,7 @@ export function isAtRiskGpa(gpa, hasGradedCredits) {
   return getGpaTier(gpa, hasGradedCredits) === GPA_TIER.RISK;
 }
 
-// Maps a letter grade to the border/text color tier shown on each grade
-// selector (blue for A-tier, dark blue for B-tier, orange for C-tier, red
-// for everything else including ungraded... actually ungraded gets neutral).
+// Maps a letter grade to the border/text color tier shown on each grade selector.
 export function getGradeBorderClass(grade) {
   if (!grade) return 'border-hairline text-muted-text';
   if (grade === 'Pass' || grade.startsWith('A')) return 'border-m-blue-light text-m-blue-light';

@@ -32,9 +32,7 @@ const classFor = (result, tier) => result.classes.find((c) => c.tier === tier);
 
 describe('assessClasses — First Class needs more than the GPA threshold', () => {
   it('blocks First Class when a single course is below C, despite a high GPA', () => {
-    // The exact case the GPA-only classification got wrong: one D among
-    // otherwise top marks still clears 3.70, but the handbook requires C or
-    // better in every course counted for GPA.
+    // First Class requires grade C or better across every GPA course
     const grades = transcript('A+', { [gpaModules[0].code]: 'D' });
     const cgpa = cgpaOf(grades);
     const result = assessClasses(active, grades, gradeMap, cgpa);
@@ -85,8 +83,7 @@ describe('assessClasses — First Class needs more than the GPA threshold', () =
   });
 
   it('requires A or better across half the credits, not merely a high average', () => {
-    // Straight A- averages 3.70 but earns zero credits at "A or better",
-    // because A- is 3.7 and the criterion needs 4.0.
+    // A- (3.7) does not count toward the A (4.0) threshold
     const grades = transcript('A-');
     const result = assessClasses(active, grades, gradeMap, cgpaOf(grades));
     const halfA = criterion(classFor(result, 'first'), 'first-half-a');
@@ -153,9 +150,7 @@ describe('resolveAwardTier — the badge shows the class actually on offer', () 
     const cgpa = cgpaOf(grades);
     const classes = assessClasses(active, grades, gradeMap, cgpa);
 
-    // GPA alone would say First Class.
     expect(getGpaTier(cgpa, true)).toBe(GPA_TIER.FIRST);
-    // The handbook says otherwise, and so does the badge.
     expect(resolveAwardTier(GPA_TIER.FIRST, classes)).toBe(GPA_TIER.UPPER);
   });
 

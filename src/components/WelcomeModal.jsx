@@ -23,7 +23,6 @@ export default function WelcomeModal({
             transition={{ delay: 0.1, duration: 0.4 }}
             className="border border-hairline bg-surface-soft p-6 sm:p-8 rounded-none max-w-xl w-full flex flex-col gap-6 relative"
           >
-            {/* BMW tricolor accent bar */}
             <div className="absolute top-0 left-0 right-0 h-1 flex">
               <div className="h-full flex-1 bg-m-blue-light" />
               <div className="h-full flex-1 bg-m-blue-dark" />
@@ -32,6 +31,7 @@ export default function WelcomeModal({
 
             {modalStep === 1 ? (
               <>
+                {/* Step 1: Degree Selection */}
                 <div className="text-center mt-2">
                   <h2 className="text-xl sm:text-2xl font-black font-bmw-display text-white tracking-tighter uppercase leading-none">
                     SELECT DEGREE PROGRAMME
@@ -44,9 +44,9 @@ export default function WelcomeModal({
                   BE TOGGLED IN THE TOP NAVIGATION BAR AT ANY TIME.
                 </p>
 
+                {/* Degree Options */}
                 <div className="flex flex-col gap-4 mt-2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* IT Degree Button */}
                     <button
                       onClick={() => onSelectPathway('it')}
                       className="group border border-hairline hover:border-m-red bg-surface-card p-5 text-left rounded-none transition-colors flex flex-col gap-2.5 cursor-pointer font-sans"
@@ -62,7 +62,6 @@ export default function WelcomeModal({
                       </span>
                     </button>
 
-                    {/* MIT Degree Button */}
                     <button
                       onClick={() => setModalStep(2)}
                       className="group border border-hairline hover:border-m-red bg-surface-card p-5 text-left rounded-none transition-colors flex flex-col gap-2.5 cursor-pointer font-sans"
@@ -79,7 +78,6 @@ export default function WelcomeModal({
                     </button>
                   </div>
 
-                  {/* Not Decided Yet Button */}
                   <button
                     onClick={() => onSelectPathway('undecided')}
                     className="group border border-dashed border-hairline hover:border-white bg-surface-soft p-4 text-center rounded-none transition-colors flex flex-col items-center justify-center gap-1.5 cursor-pointer font-sans"
@@ -95,6 +93,7 @@ export default function WelcomeModal({
               </>
             ) : (
               <>
+                {/* Step 2: MIT Specialization */}
                 <div className="text-center mt-2">
                   <span className="text-[9px] text-m-orange font-bold uppercase tracking-[0.2em] block mb-2 font-bmw-display">
                     B.SC. HONS IN MIT SPECIALIZATION
@@ -110,8 +109,8 @@ export default function WelcomeModal({
                   AND OPTIONAL CURRICULUM GROUPS.
                 </p>
 
+                {/* Specialization Options */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
-                  {/* BSE */}
                   <button
                     onClick={() => onSelectSpecialization('bse')}
                     className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer font-sans"
@@ -124,7 +123,6 @@ export default function WelcomeModal({
                     </span>
                   </button>
 
-                  {/* OSCM */}
                   <button
                     onClick={() => onSelectSpecialization('oscm')}
                     className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer font-sans"
@@ -137,7 +135,6 @@ export default function WelcomeModal({
                     </span>
                   </button>
 
-                  {/* IS */}
                   <button
                     onClick={() => onSelectSpecialization('is')}
                     className="group border border-hairline hover:border-m-orange bg-surface-card p-4 text-left rounded-none transition-colors flex flex-col gap-2 cursor-pointer font-sans"
@@ -152,7 +149,6 @@ export default function WelcomeModal({
                 </div>
 
                 <div className="flex flex-col gap-3 mt-2">
-                  {/* Undecided / Year 1-2 fallback */}
                   <button
                     onClick={() => onSelectSpecialization('undecided')}
                     className="group border border-dashed border-hairline hover:border-white bg-surface-soft p-3.5 text-center rounded-none transition-colors flex flex-col items-center justify-center gap-1 cursor-pointer font-sans"

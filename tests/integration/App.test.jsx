@@ -3,21 +3,13 @@ import { render, screen } from '@testing-library/react';
 import App from '../../src/App';
 import { STORAGE_KEYS } from '../../src/data/constants';
 
-// recharts' ResponsiveContainer measures the container via ResizeObserver
-// and polls for a nonzero size — jsdom never reports one, so it spins
-// indefinitely instead of erroring. Stub the chart out; the trend line's own
-// math is already covered by computeTrendData's unit tests.
+// Mock AnalyticsChart since jsdom lacks ResizeObserver layout measurement
 vi.mock('../../src/components/AnalyticsChart', () => ({
   default: () => <div data-testid="analytics-chart-stub" />,
 }));
 
-// Unit tests on gpaEngine/targetPlan verify the math in isolation, but the
-// original bug wasn't in the math — it was in App.jsx passing TargetPlanner
-// props under names it never destructured. That kind of mismatch only shows
-// up by actually rendering the two together, so this test does that: it
-// skips past onboarding via localStorage (no modal clicking, which is where
-// this suite would otherwise fight animation/lazy-load timing) and asserts
-// on what a real student sees on first load, before entering a single grade.
+// Validates end-to-end integration between App state and TargetPlanner.
+// Skips onboarding overlays via localStorage to focus on initial dashboard rendering.
 function skipOnboarding({ pathway = 'it' } = {}) {
   localStorage.setItem(STORAGE_KEYS.SECURITY_ACCEPTED, 'true');
   localStorage.setItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED, Date.now().toString());
@@ -40,26 +32,19 @@ describe('App — Target GPA Planner wiring', () => {
   });
 
   it('renders a real required-average figure on first load, not a permanent "impossible"', async () => {
-    // This is the direct regression test for the original bug: with the
-    // props mismatched, this exact screen — no grades entered yet, fresh
-    // onboarding — showed "IMPOSSIBLE (> 4.00)" unconditionally.
+    // Ensures fresh dashboard load computes and renders required average properly.
     skipOnboarding();
     render(<App />);
 
     await screen.findByText(/TARGET GPA PLANNER/i);
     expect(screen.queryByText(/IMPOSSIBLE/i)).not.toBeInTheDocument();
     expect(screen.getByText(/UNGRADED CREDITS/i)).toBeInTheDocument();
-    // Year 1 is always loaded regardless of pathway, and none of it is
-    // graded yet, so there must be a nonzero ungraded-credit figure feeding
-    // the planner.
+    // Fresh curriculum starts with ungraded credits
     expect(screen.getByText(/^\d+ Credits$/)).toBeInTheDocument();
   });
 
   it('shows "achieved" once every GPA-eligible credit is graded above the goal', async () => {
-    // Pathway 'undecided' keeps the active curriculum to Year 1 only (see
-    // getActiveModules), so grading every Year 1 GPA-eligible module here
-    // actually brings ungraded credits to zero — exercising TargetPlanner's
-    // "no credits left" branch end-to-end, not just the pure function.
+    // Grade all active modules to verify 0.00 required average state
     skipOnboarding({ pathway: 'undecided' });
     const { modules } = await import('../../src/data/modules');
     const year1GpaModules = modules.filter((m) => m.y === 1 && !m.nonGpa);
