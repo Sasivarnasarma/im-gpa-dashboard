@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AnimatedCounter from './AnimatedCounter';
 import { computeTargetPlan } from '../lib/targetPlan';
+import { trackEvent } from '../lib/insights';
 
 export default function TargetPlanner({
   totalGpaCredits,
@@ -32,7 +33,10 @@ export default function TargetPlanner({
             min="0.00"
             max="4.00"
             value={targetGPA}
-            onChange={(e) => setTargetGPA(e.target.value)}
+            onChange={(e) => {
+              setTargetGPA(e.target.value);
+              trackEvent('target_gpa_changed');
+            }}
             className="w-16 h-8 bg-canvas text-on-dark text-center font-mono text-xs border border-hairline focus:border-white rounded-none"
           />
         </div>

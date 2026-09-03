@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Check, X, Circle, ChevronDown, ShieldAlert } from 'lucide-react';
 import { STATUS } from '../lib/degreeAudit';
+import { trackEvent } from '../lib/insights';
 
 const STATUS_STYLE = {
   [STATUS.MET]: { icon: Check, color: 'text-tier-pass', ring: 'border-tier-pass/40', label: 'Met' },
@@ -80,7 +81,13 @@ export default function DegreeAudit({ eligibility, classes }) {
     <div className="border border-hairline bg-surface-soft rounded-none">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          setOpen((prev) => {
+            const next = !prev;
+            if (next) trackEvent('degree_audit_opened');
+            return next;
+          });
+        }}
         aria-expanded={open}
         className="w-full flex items-center justify-between gap-3 p-5 cursor-pointer text-left"
       >

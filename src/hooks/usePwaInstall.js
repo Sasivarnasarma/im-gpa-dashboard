@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { STORAGE_KEYS } from '../data/constants';
+import { trackEvent } from '../lib/insights';
 
 const isRunningStandalone = () =>
   window.matchMedia('(display-mode: standalone)').matches ||
@@ -35,6 +36,7 @@ export default function usePwaInstall(triggerToast) {
       localStorage.setItem(STORAGE_KEYS.INSTALLED, 'true');
       setInstallPromptCompleted(true);
       triggerToast('PWA INSTALLED SUCCESSFULLY');
+      trackEvent('pwa_installed');
     };
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
@@ -53,6 +55,7 @@ export default function usePwaInstall(triggerToast) {
       triggerToast(`INSTALLATION: ${outcome.toUpperCase()}`);
       if (outcome === 'accepted') {
         localStorage.setItem(STORAGE_KEYS.INSTALLED, 'true');
+        trackEvent('pwa_installed');
       }
       setDeferredPrompt(null);
     } else {

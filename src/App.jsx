@@ -25,6 +25,7 @@ import usePwaInstall from './hooks/usePwaInstall';
 import useGpaComputation from './hooks/useGpaComputation';
 
 import { STORAGE_KEYS } from './data/constants';
+import { tagPathway, trackEvent } from './lib/insights';
 
 export default function App() {
   const [toast, setToast] = useState(null);
@@ -64,6 +65,13 @@ export default function App() {
     };
   }, [onboarding.isOnboardingActive, showResetModal, showDeveloperModal]);
 
+  // Sync academic pathway tags with Clarity session analytics
+  useEffect(() => {
+    if (onboarding.pathway) {
+      tagPathway(onboarding.pathway, onboarding.specialization);
+    }
+  }, [onboarding.pathway, onboarding.specialization]);
+
   // Respects user motion preference for programmatic scrolling
   const scrollBehavior = () =>
     window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
@@ -88,6 +96,7 @@ export default function App() {
       return updated;
     });
     triggerToast(`UPDATED: ${code}`);
+    trackEvent('grade_updated');
   };
 
   const handleClearAll = () => {
@@ -95,6 +104,7 @@ export default function App() {
     onboarding.resetOnboarding();
     pwa.resetInstallPrompt();
     triggerToast('DATABASE FULLY RESET');
+    trackEvent('database_reset');
   };
 
   const { currentPathway, stats, trendData, years, eligibility, classes, awardTier } =

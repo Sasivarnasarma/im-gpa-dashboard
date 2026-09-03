@@ -5,9 +5,13 @@ import { MotionConfig } from 'framer-motion';
 import './index.css';
 import App from './App.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import { initAnalytics } from './lib/insights.js';
 
 // Register caching Service Worker for offline PWA capabilities
 registerSW({ immediate: true });
+
+// Initialize telemetry (GA4 & Microsoft Clarity in production)
+initAnalytics();
 
 // Surface curriculum data problems the moment they're introduced while
 // editing modules.js, rather than waiting for a test run. Dev-only — the

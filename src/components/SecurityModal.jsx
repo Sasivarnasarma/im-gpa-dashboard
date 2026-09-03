@@ -36,7 +36,7 @@ export default function SecurityModal({ isOpen, onAccept }) {
 
             <p className="text-xs text-muted-text leading-relaxed font-light">
               ALL GRADES AND CONFIGURATIONS ARE STORED EXCLUSIVELY ON YOUR LOCAL DEVICE. WE DO NOT
-              COLLECT, TRANSMIT, OR STORE YOUR DATA ON ANY REMOTE SERVERS.
+              COLLECT, TRANSMIT, OR STORE YOUR ACADEMIC RECORDS ON ANY REMOTE SERVERS.
             </p>
 
             {/* Action Links & Buttons */}
