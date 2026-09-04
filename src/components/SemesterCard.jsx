@@ -47,18 +47,26 @@ export default function SemesterCard({
               </div>
 
               {/* Grade Selector */}
-              <select
-                value={grades[mod.code] || ''}
-                onChange={(e) => onGradeChange(mod.code, e.target.value)}
-                className={`h-9 w-20 bg-canvas text-center font-mono text-xs border rounded-none focus:border-white cursor-pointer px-1 py-0 ${getGradeBorderClass(grades[mod.code])}`}
+              <div
+                className={`relative h-9 w-20 bg-canvas border rounded-none flex items-center justify-center transition-colors focus-within:border-white ${getGradeBorderClass(grades[mod.code])}`}
               >
-                <option value="">--</option>
-                {(mod.gradeType === 'passfail' ? PASSFAIL_OPTIONS : GRADE_OPTIONS).map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
+                <span className="font-mono text-xs font-bold pointer-events-none select-none">
+                  {grades[mod.code] || '--'}
+                </span>
+                <select
+                  value={grades[mod.code] || ''}
+                  onChange={(e) => onGradeChange(mod.code, e.target.value)}
+                  aria-label={`Grade for ${mod.code} - ${mod.name}`}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-center font-mono text-xs bg-canvas text-white"
+                >
+                  <option value="">--</option>
+                  {(mod.gradeType === 'passfail' ? PASSFAIL_OPTIONS : GRADE_OPTIONS).map((g) => (
+                    <option key={g} value={g} className="bg-canvas text-white">
+                      {g}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           ))}
         </div>

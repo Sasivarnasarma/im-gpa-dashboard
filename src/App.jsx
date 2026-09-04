@@ -9,6 +9,7 @@ import YearSection from './components/YearSection';
 import ExecutiveSummary from './components/ExecutiveSummary';
 import ScrollTopButton from './components/ScrollTopButton';
 import DegreeAudit from './components/DegreeAudit';
+import GradingScale from './components/GradingScale';
 // Eagerly loaded to prevent flash during onboarding
 import SecurityModal from './components/SecurityModal';
 import WelcomeModal from './components/WelcomeModal';
@@ -207,6 +208,11 @@ export default function App() {
               />
             ))}
           </div>
+        </div>
+
+        {/* University Grading Scale Reference */}
+        <div className="mt-12">
+          <GradingScale />
         </div>
       </main>
 

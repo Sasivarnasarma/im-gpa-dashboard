@@ -11,8 +11,13 @@ export default function MobileSelectorPanel({
   return (
     <div className="flex flex-col sm:flex-row gap-3 p-4 border border-hairline bg-surface-soft md:hidden select-none">
       {/* Degree Pathway Selector */}
-      <div className="flex items-center justify-between font-mono text-xs w-full sm:w-auto">
+      <div className="flex items-center justify-between font-mono text-xs w-full sm:w-auto relative cursor-pointer focus-within:ring-1 focus-within:ring-white">
         <span className="text-muted-text font-bold uppercase text-[9px] mr-2">DEGREE:</span>
+        <span
+          className={`font-black uppercase text-[10px] sm:text-xs font-mono select-none pointer-events-none ${!pathway || pathway === 'undecided' ? 'text-muted-text' : 'text-m-red'}`}
+        >
+          {!pathway || pathway === 'undecided' ? 'UNDECIDED' : pathway.toUpperCase()}
+        </span>
         <select
           value={pathway || 'undecided'}
           onChange={(e) => {
@@ -21,8 +26,8 @@ export default function MobileSelectorPanel({
             setPathway(val === 'undecided' ? 'undecided' : val);
             triggerToast(`DEGREE: ${val.toUpperCase()}`);
           }}
-          className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none focus:ring-0 pr-2 font-mono ${pathway === 'undecided' ? 'text-muted-text' : 'text-m-red'}`}
-          style={{ width: pathway === 'mit' ? '58px' : pathway === 'it' ? '50px' : '100px' }}
+          aria-label="Select Degree Programme"
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-[10px] sm:text-xs font-mono uppercase bg-canvas text-white"
         >
           <option value="undecided" className="bg-canvas text-muted-text">
             UNDECIDED
@@ -38,9 +43,14 @@ export default function MobileSelectorPanel({
 
       {/* MIT Specialization Selector */}
       {pathway === 'mit' && (
-        <div className="flex items-center justify-between font-mono text-xs w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-hairline pt-3 sm:pt-0 sm:pl-4">
+        <div className="flex items-center justify-between font-mono text-xs w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-hairline pt-3 sm:pt-0 sm:pl-4 relative cursor-pointer focus-within:ring-1 focus-within:ring-white">
           <span className="text-muted-text font-bold uppercase text-[9px] mr-2">
             SPECIALIZATION:
+          </span>
+          <span
+            className={`font-black uppercase text-[10px] sm:text-xs font-mono select-none pointer-events-none ${!specialization || specialization === 'undecided' ? 'text-muted-text' : 'text-m-orange'}`}
+          >
+            {SPECIALIZATION_LABELS[specialization] ?? specialization?.toUpperCase() ?? 'UNDECIDED'}
           </span>
           <select
             value={specialization}
@@ -50,15 +60,8 @@ export default function MobileSelectorPanel({
               setSpecialization(val);
               triggerToast(`SPECIALIZATION: ${SPECIALIZATION_LABELS[val] ?? val.toUpperCase()}`);
             }}
-            className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none focus:ring-0 pr-2 font-mono ${specialization === 'undecided' ? 'text-muted-text' : 'text-m-orange'}`}
-            style={{
-              width:
-                specialization === 'bse' || specialization === 'is'
-                  ? '58px'
-                  : specialization === 'oscm'
-                    ? '66px'
-                    : '100px',
-            }}
+            aria-label="Select MIT Specialization"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-[10px] sm:text-xs font-mono uppercase bg-canvas text-white"
           >
             <option value="undecided" className="bg-canvas text-muted-text">
               UNDECIDED

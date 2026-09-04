@@ -64,8 +64,13 @@ export default function Navbar({
 
           {/* Desktop Selectors */}
           <div className="hidden md:flex items-center gap-4">
-            <div className="border border-hairline bg-surface-soft px-3 py-1.5 font-mono text-xs select-none flex items-center">
+            <div className="border border-hairline bg-surface-soft px-3 py-1.5 font-mono text-xs select-none flex items-center relative cursor-pointer focus-within:border-white">
               <span className="text-muted-text font-bold uppercase text-[9px] mr-2">DEGREE:</span>
+              <span
+                className={`font-black uppercase text-[10px] sm:text-xs font-mono select-none pointer-events-none ${!pathway || pathway === 'undecided' ? 'text-muted-text' : 'text-m-red'}`}
+              >
+                {!pathway || pathway === 'undecided' ? 'UNDECIDED' : pathway.toUpperCase()}
+              </span>
               <select
                 value={pathway || 'undecided'}
                 onChange={(e) => {
@@ -74,8 +79,8 @@ export default function Navbar({
                   setPathway(val === 'undecided' ? 'undecided' : val);
                   triggerToast(`DEGREE: ${val.toUpperCase()}`);
                 }}
-                className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none focus:ring-0 pr-2 font-mono ${pathway === 'undecided' ? 'text-muted-text' : 'text-m-red'}`}
-                style={{ width: pathway === 'mit' ? '58px' : pathway === 'it' ? '50px' : '100px' }}
+                aria-label="Select Degree Programme"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-[10px] sm:text-xs font-mono uppercase bg-canvas text-white"
               >
                 <option value="undecided" className="bg-canvas text-muted-text">
                   UNDECIDED
@@ -90,9 +95,16 @@ export default function Navbar({
             </div>
 
             {pathway === 'mit' && (
-              <div className="border border-hairline bg-surface-soft px-3 py-1.5 font-mono text-xs select-none flex items-center">
+              <div className="border border-hairline bg-surface-soft px-3 py-1.5 font-mono text-xs select-none flex items-center relative cursor-pointer focus-within:border-white">
                 <span className="text-muted-text font-bold uppercase text-[9px] mr-2">
                   SPECIALIZATION:
+                </span>
+                <span
+                  className={`font-black uppercase text-[10px] sm:text-xs font-mono select-none pointer-events-none ${!specialization || specialization === 'undecided' ? 'text-muted-text' : 'text-m-orange'}`}
+                >
+                  {SPECIALIZATION_LABELS[specialization] ??
+                    specialization?.toUpperCase() ??
+                    'UNDECIDED'}
                 </span>
                 <select
                   value={specialization}
@@ -104,15 +116,8 @@ export default function Navbar({
                       `SPECIALIZATION: ${SPECIALIZATION_LABELS[val] ?? val.toUpperCase()}`
                     );
                   }}
-                  className={`bg-transparent font-black uppercase text-[10px] sm:text-xs select-none cursor-pointer border-none focus:ring-0 pr-2 font-mono ${specialization === 'undecided' ? 'text-muted-text' : 'text-m-orange'}`}
-                  style={{
-                    width:
-                      specialization === 'bse' || specialization === 'is'
-                        ? '58px'
-                        : specialization === 'oscm'
-                          ? '66px'
-                          : '100px',
-                  }}
+                  aria-label="Select MIT Specialization"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer text-[10px] sm:text-xs font-mono uppercase bg-canvas text-white"
                 >
                   <option value="undecided" className="bg-canvas text-muted-text">
                     UNDECIDED
