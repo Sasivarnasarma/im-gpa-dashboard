@@ -3,14 +3,18 @@ import { animate } from 'framer-motion';
 
 export default function AnimatedCounter({ value, decimals = 2 }) {
   const nodeRef = useRef(null);
-  const prevValueRef = useRef(parseFloat(value) || 0);
 
   useEffect(() => {
     const node = nodeRef.current;
     if (!node) return;
 
-    const startValue = prevValueRef.current;
+    const startValue = parseFloat(node.textContent) || 0;
     const endValue = parseFloat(value) || 0;
+
+    if (startValue === endValue) {
+      node.textContent = endValue.toFixed(decimals);
+      return;
+    }
 
     const controls = animate(startValue, endValue, {
       duration: 0.6,
@@ -18,9 +22,10 @@ export default function AnimatedCounter({ value, decimals = 2 }) {
       onUpdate(val) {
         node.textContent = val.toFixed(decimals);
       },
+      onComplete() {
+        node.textContent = endValue.toFixed(decimals);
+      },
     });
-
-    prevValueRef.current = endValue;
 
     return () => controls.stop();
   }, [value, decimals]);

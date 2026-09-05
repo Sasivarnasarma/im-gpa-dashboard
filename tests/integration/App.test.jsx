@@ -9,11 +9,31 @@ vi.mock('../../src/components/AnalyticsChart', () => ({
 }));
 
 // Validates end-to-end integration between App state and TargetPlanner.
-// Skips onboarding overlays via localStorage to focus on initial dashboard rendering.
-function skipOnboarding({ pathway = 'it' } = {}) {
+// Seeds a device that has already been through onboarding — storage policy
+// accepted, install prompt dismissed, and one profile with a degree chosen —
+// so these tests start on the dashboard.
+function skipOnboarding({ pathway = 'it', grades = {} } = {}) {
   localStorage.setItem(STORAGE_KEYS.SECURITY_ACCEPTED, 'true');
   localStorage.setItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED, Date.now().toString());
-  localStorage.setItem(STORAGE_KEYS.PATHWAY, pathway);
+  localStorage.setItem(
+    STORAGE_KEYS.PROFILES,
+    JSON.stringify({
+      version: 1,
+      activeId: 'p_test',
+      profiles: [
+        {
+          id: 'p_test',
+          name: 'Test Student',
+          pathway,
+          specialization: 'undecided',
+          grades,
+          targetGpa: '3.70',
+          createdAt: 0,
+          updatedAt: 0,
+        },
+      ],
+    })
+  );
 }
 
 describe('App — Target GPA Planner wiring', () => {
@@ -45,11 +65,10 @@ describe('App — Target GPA Planner wiring', () => {
 
   it('shows "achieved" once every GPA-eligible credit is graded above the goal', async () => {
     // Grade all active modules to verify 0.00 required average state
-    skipOnboarding({ pathway: 'undecided' });
     const { modules } = await import('../../src/data/modules');
     const year1GpaModules = modules.filter((m) => m.y === 1 && !m.nonGpa);
     const grades = Object.fromEntries(year1GpaModules.map((m) => [m.code, 'A+']));
-    localStorage.setItem(STORAGE_KEYS.GRADES, JSON.stringify(grades));
+    skipOnboarding({ pathway: 'undecided', grades });
 
     render(<App />);
 

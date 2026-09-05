@@ -2,41 +2,31 @@ import { useState } from 'react';
 import { STORAGE_KEYS, SPECIALIZATION_LABELS } from '../data/constants';
 import useLocalStorage from './useLocalStorage';
 
-// Storage adapters live at module scope so useLocalStorage's mirror effect
-// receives a stable `write` reference.
 const SECURITY_STORAGE = {
   read: (raw) => raw === 'true',
   write: (value) => (value ? 'true' : null),
   fallback: false,
 };
 
-const PATHWAY_STORAGE = {
-  read: (raw) => raw || null,
-  write: (value) => value,
-  fallback: null,
-};
-
-const SPECIALIZATION_STORAGE = {
-  read: (raw) => raw || 'undecided',
-  write: (value) => value,
-  fallback: 'undecided',
-};
-
-// Manages the onboarding sequence (security, PWA install, and degree pathway)
-export default function useOnboarding(triggerToast, installPromptCompleted) {
+export default function useOnboarding({
+  triggerToast,
+  installPromptCompleted,
+  activeProfile,
+  needsProfile,
+  updateActive,
+}) {
   const [securityAccepted, setSecurityAccepted] = useLocalStorage(
     STORAGE_KEYS.SECURITY_ACCEPTED,
     SECURITY_STORAGE
   );
 
-  const [pathway, setPathway] = useLocalStorage(STORAGE_KEYS.PATHWAY, PATHWAY_STORAGE);
-
-  const [specialization, setSpecialization] = useLocalStorage(
-    STORAGE_KEYS.SPECIALIZATION,
-    SPECIALIZATION_STORAGE
-  );
-
   const [modalStep, setModalStep] = useState(1);
+
+  const pathway = activeProfile?.pathway ?? null;
+  const specialization = activeProfile?.specialization ?? 'undecided';
+
+  const setPathway = (value) => updateActive({ pathway: value });
+  const setSpecialization = (value) => updateActive({ specialization: value });
 
   const acceptSecurity = () => {
     setSecurityAccepted(true);
@@ -49,8 +39,7 @@ export default function useOnboarding(triggerToast, installPromptCompleted) {
   };
 
   const selectSpecialization = (spec) => {
-    setSpecialization(spec);
-    setPathway('mit');
+    updateActive({ specialization: spec, pathway: 'mit' });
     triggerToast(
       `MIT DEGREE: ${SPECIALIZATION_LABELS[spec] ?? spec.toUpperCase()} SPECIALIZATION INITIALIZED`
     );
@@ -63,19 +52,19 @@ export default function useOnboarding(triggerToast, installPromptCompleted) {
     );
   };
 
-  // Reset onboarding state back to step 1
+  // Full reset: the profiles themselves are cleared by the profile store, so
+  // this only has to drop the device-level acceptance and rewind the modal.
   const resetOnboarding = () => {
-    setPathway(null);
-    setSpecialization('undecided');
     setModalStep(1);
     setSecurityAccepted(false);
   };
 
-  // Sequence gating for onboarding modals
   const showSecurityModal = !securityAccepted;
   const showInstallPrompt = securityAccepted && !installPromptCompleted;
-  const showWelcomeModal = securityAccepted && installPromptCompleted && !pathway;
-  const isOnboardingActive = showSecurityModal || showInstallPrompt || showWelcomeModal;
+  const showNameModal = securityAccepted && installPromptCompleted && needsProfile;
+  const showWelcomeModal = securityAccepted && installPromptCompleted && !needsProfile && !pathway;
+  const isOnboardingActive =
+    showSecurityModal || showNameModal || showInstallPrompt || showWelcomeModal;
 
   return {
     pathway,
@@ -90,6 +79,7 @@ export default function useOnboarding(triggerToast, installPromptCompleted) {
     selectSpecializationDirect,
     resetOnboarding,
     showSecurityModal,
+    showNameModal,
     showInstallPrompt,
     showWelcomeModal,
     isOnboardingActive,

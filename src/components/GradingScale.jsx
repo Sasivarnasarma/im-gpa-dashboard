@@ -2,7 +2,6 @@ import React from 'react';
 import { Info } from 'lucide-react';
 import { GRADING_SCALE } from '../data/constants';
 
-
 export default function GradingScale() {
   return (
     <section

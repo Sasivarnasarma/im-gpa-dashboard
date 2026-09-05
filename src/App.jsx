@@ -10,22 +10,23 @@ import ExecutiveSummary from './components/ExecutiveSummary';
 import ScrollTopButton from './components/ScrollTopButton';
 import DegreeAudit from './components/DegreeAudit';
 import GradingScale from './components/GradingScale';
+import ProfileMenu from './components/ProfileMenu';
 // Eagerly loaded to prevent flash during onboarding
 import SecurityModal from './components/SecurityModal';
 import WelcomeModal from './components/WelcomeModal';
 import InstallPromptModal from './components/InstallPromptModal';
+import ProfileNameModal from './components/ProfileNameModal';
 
 // Lazily loaded components for smaller initial bundle
 const AnalyticsChart = lazy(() => import('./components/AnalyticsChart'));
 const ResetModal = lazy(() => import('./components/ResetModal'));
 const SystemCreatorModal = lazy(() => import('./components/SystemCreatorModal'));
 
-import useLocalStorage from './hooks/useLocalStorage';
 import useOnboarding from './hooks/useOnboarding';
 import usePwaInstall from './hooks/usePwaInstall';
 import useGpaComputation from './hooks/useGpaComputation';
+import useProfiles from './hooks/useProfiles';
 
-import { STORAGE_KEYS } from './data/constants';
 import { tagPathway, trackEvent } from './lib/insights';
 
 export default function App() {
@@ -34,17 +35,22 @@ export default function App() {
     setToast(msg);
   }, []);
 
-  const [grades, setGrades] = useLocalStorage(STORAGE_KEYS.GRADES, {
-    read: (raw) => (raw ? JSON.parse(raw) : {}),
-    write: JSON.stringify,
-    fallback: {},
+  const profiles = useProfiles();
+  const pwa = usePwaInstall(triggerToast);
+  const onboarding = useOnboarding({
+    triggerToast,
+    installPromptCompleted: pwa.installPromptCompleted,
+    activeProfile: profiles.activeProfile,
+    needsProfile: profiles.needsProfile,
+    updateActive: profiles.updateActive,
   });
 
-  const pwa = usePwaInstall(triggerToast);
-  const onboarding = useOnboarding(triggerToast, pwa.installPromptCompleted);
+  const grades = profiles.activeProfile?.grades ?? {};
 
   const [showResetModal, setShowResetModal] = useState(false);
   const [showDeveloperModal, setShowDeveloperModal] = useState(false);
+  // Set while adding a profile from the menu, which reuses the name prompt.
+  const [addingProfile, setAddingProfile] = useState(false);
 
   useEffect(() => {
     if (toast) {
@@ -55,7 +61,13 @@ export default function App() {
 
   // Lock body scroll when overlays are active
   useEffect(() => {
-    if (onboarding.isOnboardingActive || showResetModal || showDeveloperModal) {
+    if (
+      onboarding.isOnboardingActive ||
+      showResetModal ||
+      showDeveloperModal ||
+      profiles.menuOpen ||
+      addingProfile
+    ) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -64,7 +76,13 @@ export default function App() {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [onboarding.isOnboardingActive, showResetModal, showDeveloperModal]);
+  }, [
+    onboarding.isOnboardingActive,
+    showResetModal,
+    showDeveloperModal,
+    profiles.menuOpen,
+    addingProfile,
+  ]);
 
   // Sync academic pathway tags with Clarity session analytics
   useEffect(() => {
@@ -87,24 +105,54 @@ export default function App() {
   };
 
   const handleGradeChange = (code, val) => {
-    setGrades((prev) => {
-      const updated = { ...prev };
-      if (val === '') {
-        delete updated[code];
-      } else {
-        updated[code] = val;
-      }
-      return updated;
-    });
+    const updated = { ...grades };
+    if (val === '') {
+      delete updated[code];
+    } else {
+      updated[code] = val;
+    }
+    profiles.updateActive({ grades: updated });
     triggerToast(`UPDATED: ${code}`);
     trackEvent('grade_updated');
   };
 
+  // Name prompt: first run creates the only profile, and the profile menu
+  // reuses it to add another.
+  const handleNameSubmit = (name) => {
+    profiles.addProfile(name);
+    setAddingProfile(false);
+    triggerToast(`PROFILE: ${name.toUpperCase()} CREATED`);
+    trackEvent('profile_created');
+  };
+
+  const handleSwitchProfile = (id) => {
+    const next = profiles.profiles.find((p) => p.id === id);
+    profiles.switchProfile(id);
+    if (next) triggerToast(`PROFILE: ${next.name.toUpperCase()}`);
+    trackEvent('profile_switched');
+  };
+
+  const handleRenameProfile = (id, name) => {
+    profiles.renameProfile(id, name);
+    triggerToast(`PROFILE RENAMED: ${name.toUpperCase()}`);
+    trackEvent('profile_renamed');
+  };
+
+  const handleDeleteProfile = (id) => {
+    const gone = profiles.profiles.find((p) => p.id === id);
+    const wasLast = profiles.profiles.length === 1;
+    profiles.removeProfile(id);
+    if (wasLast) profiles.closeMenu();
+    if (gone) triggerToast(`PROFILE DELETED: ${gone.name.toUpperCase()}`);
+    trackEvent('profile_deleted');
+  };
+
   const handleClearAll = () => {
-    setGrades({});
+    profiles.resetAll();
+    profiles.closeMenu();
     onboarding.resetOnboarding();
     pwa.resetInstallPrompt();
-    triggerToast('DATABASE FULLY RESET');
+    triggerToast('ALL PROFILES DELETED');
     trackEvent('database_reset');
   };
 
@@ -127,7 +175,8 @@ export default function App() {
         gradedCredits={stats.gradedCredits}
         activeCompulsoryCredits={stats.activeCompulsoryCredits}
         totalCreditsCount={stats.totalCreditsCount}
-        onResetClick={() => setShowResetModal(true)}
+        onProfileClick={profiles.openMenu}
+        profileName={profiles.activeProfile?.name}
         triggerToast={triggerToast}
         showInstallBtn={pwa.showInstallBtn}
         onInstallClick={pwa.reopenPrompt}
@@ -267,6 +316,28 @@ export default function App() {
       </Suspense>
 
       <SecurityModal isOpen={onboarding.showSecurityModal} onAccept={onboarding.acceptSecurity} />
+
+      {/* Profile switcher, and the name prompt it shares with first run */}
+      <ProfileMenu
+        isOpen={profiles.menuOpen}
+        onClose={profiles.closeMenu}
+        profiles={profiles.profiles}
+        activeId={profiles.activeId}
+        onSwitch={handleSwitchProfile}
+        onAdd={() => {
+          profiles.closeMenu();
+          setAddingProfile(true);
+        }}
+        onRename={handleRenameProfile}
+        onDelete={handleDeleteProfile}
+        onResetAll={() => setShowResetModal(true)}
+      />
+
+      <ProfileNameModal
+        isOpen={onboarding.showNameModal || addingProfile}
+        onSubmit={handleNameSubmit}
+        onCancel={addingProfile ? () => setAddingProfile(false) : undefined}
+      />
 
       <InstallPromptModal
         isOpen={onboarding.showInstallPrompt}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { STORAGE_KEYS, SPECIALIZATION_LABELS } from '../data/constants';
+import { SPECIALIZATION_LABELS } from '../data/constants';
 
 export default function MobileSelectorPanel({
   pathway,
@@ -22,7 +22,6 @@ export default function MobileSelectorPanel({
           value={pathway || 'undecided'}
           onChange={(e) => {
             const val = e.target.value;
-            localStorage.setItem(STORAGE_KEYS.PATHWAY, val);
             setPathway(val === 'undecided' ? 'undecided' : val);
             triggerToast(`DEGREE: ${val.toUpperCase()}`);
           }}
@@ -56,7 +55,6 @@ export default function MobileSelectorPanel({
             value={specialization}
             onChange={(e) => {
               const val = e.target.value;
-              localStorage.setItem(STORAGE_KEYS.SPECIALIZATION, val);
               setSpecialization(val);
               triggerToast(`SPECIALIZATION: ${SPECIALIZATION_LABELS[val] ?? val.toUpperCase()}`);
             }}

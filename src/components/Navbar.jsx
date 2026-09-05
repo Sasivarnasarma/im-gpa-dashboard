@@ -1,7 +1,7 @@
 import React from 'react';
-import { Trash2, Download, AlertTriangle } from 'lucide-react';
+import { UserRound, Download, AlertTriangle } from 'lucide-react';
 import AnimatedCounter from './AnimatedCounter';
-import { STORAGE_KEYS, SPECIALIZATION_LABELS } from '../data/constants';
+import { SPECIALIZATION_LABELS } from '../data/constants';
 import { isAtRiskGpa } from '../lib/gpaEngine';
 
 export default function Navbar({
@@ -17,7 +17,8 @@ export default function Navbar({
   gradedCredits,
   activeCompulsoryCredits,
   totalCreditsCount,
-  onResetClick,
+  onProfileClick,
+  profileName,
   triggerToast,
   showInstallBtn,
   onInstallClick,
@@ -75,7 +76,6 @@ export default function Navbar({
                 value={pathway || 'undecided'}
                 onChange={(e) => {
                   const val = e.target.value;
-                  localStorage.setItem(STORAGE_KEYS.PATHWAY, val);
                   setPathway(val === 'undecided' ? 'undecided' : val);
                   triggerToast(`DEGREE: ${val.toUpperCase()}`);
                 }}
@@ -110,7 +110,6 @@ export default function Navbar({
                   value={specialization}
                   onChange={(e) => {
                     const val = e.target.value;
-                    localStorage.setItem(STORAGE_KEYS.SPECIALIZATION, val);
                     setSpecialization(val);
                     triggerToast(
                       `SPECIALIZATION: ${SPECIALIZATION_LABELS[val] ?? val.toUpperCase()}`
@@ -160,12 +159,12 @@ export default function Navbar({
           )}
 
           <button
-            onClick={onResetClick}
-            title="Reset all grades"
-            className="p-2 sm:px-4 sm:py-2 border border-hairline hover:border-m-red hover:text-m-red text-muted-text rounded-none transition-colors uppercase font-bmw-display font-bold text-[10px] sm:text-xs tracking-wider flex items-center gap-1.5 shrink-0 cursor-pointer"
+            onClick={onProfileClick}
+            title="Profiles"
+            className="p-2 sm:px-4 sm:py-2 border border-hairline hover:border-m-blue-light text-muted-text rounded-none transition-colors uppercase font-bmw-display font-bold text-[10px] sm:text-xs tracking-wider flex items-center gap-1.5 shrink-0 cursor-pointer max-w-38"
           >
-            <Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-m-red" />
-            <span className="hidden sm:inline text-white">Reset</span>
+            <UserRound className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-m-blue-light shrink-0" />
+            <span className="hidden sm:inline text-white truncate">{profileName || 'Profile'}</span>
           </button>
         </div>
       </div>
