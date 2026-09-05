@@ -100,9 +100,7 @@ export function validateModules(modules, gradeMap) {
       }
     }
 
-    // Year 3 MIT courses are classified purely by specCompulsory membership
-    // (getActiveModules), so one with neither group is invisible to that
-    // logic and silently becomes optional for every specialization.
+    // A course in neither group silently becomes optional for every spec.
     const isMitYear3 = m.y === 3 && (m.pathway === 'mit' || m.pathway === 'both');
     if (isMitYear3 && !m.specCompulsory && !m.specOptional) {
       problems.push(
@@ -111,13 +109,8 @@ export function validateModules(modules, gradeMap) {
       );
     }
 
-    // Only specCompulsory actually drives the runtime classification
-    // (getActiveModules does `optional: !specCompulsory.includes(spec)`), so
-    // specOptional is documentation that nothing enforces. The curriculum
-    // currently classifies every specialization explicitly in one group or
-    // the other; this keeps it that way, so a specialization silently
-    // omitted from both — and therefore shown as an elective by default —
-    // fails loudly instead of looking deliberate.
+    // Only specCompulsory drives classification, so require every
+    // specialization to appear in one group or the other.
     if (isMitYear3 && (m.specCompulsory || m.specOptional)) {
       const compulsory = m.specCompulsory ?? [];
       const optional = m.specOptional ?? [];
@@ -133,12 +126,8 @@ export function validateModules(modules, gradeMap) {
     }
   });
 
-  // A pass/fail course offers "Pass"/"Fail", which gradeMap doesn't price.
-  // That's harmless while the course is also nonGpa, because the GPA loop
-  // skips it before ever doing the lookup — but a pass/fail course that
-  // *does* count toward GPA would evaluate gradeMap["Pass"] to undefined and
-  // turn totalWeightedPoints, and therefore the whole CGPA, into NaN. Flag
-  // only that combination, which is the one that actually breaks.
+  // A pass/fail course that counts toward GPA turns the CGPA into NaN,
+  // since gradeMap has no price for "Pass".
   if (gradeMap) {
     modules.forEach((m) => {
       if (m?.gradeType === 'passfail' && !m.nonGpa && !('Pass' in gradeMap)) {

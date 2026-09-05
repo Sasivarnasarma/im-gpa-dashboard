@@ -1,8 +1,6 @@
 import React from 'react';
 
-// Catches render-time exceptions anywhere below it so a bad grade value, a
-// malformed localStorage entry that slips past the parse guard, or any other
-// unexpected crash shows a recoverable screen instead of a blank white page.
+// Shows a recoverable screen instead of a blank page on a render crash.
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);

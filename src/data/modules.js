@@ -21,6 +21,8 @@ export const modules = [
   // ==========================================
   // YEAR 1 SEMESTER 1 (All Common)
   // ==========================================
+  { code: 'INTE 11213', name: 'Fundamentals of Computing', y: 1, s: 1, cr: 3 },
+  { code: 'INTE 11223', name: 'Programming Concepts', y: 1, s: 1, cr: 3 },
   {
     code: 'MGTE 11243',
     name: 'Principles of Management & Organizational Behaviour',
@@ -29,10 +31,8 @@ export const modules = [
     cr: 3,
   },
   { code: 'MGTE 11233', name: 'Business Statistics and Economics', y: 1, s: 1, cr: 3 },
-  { code: 'INTE 11213', name: 'Fundamentals of Computing', y: 1, s: 1, cr: 3 },
-  { code: 'INTE 11223', name: 'Programming Concepts', y: 1, s: 1, cr: 3 },
-  { code: 'DELT 11232', name: 'English for Professionals', y: 1, s: 1, cr: 2 },
   { code: 'PMAT 11212', name: 'Discrete Mathematics for Computing I', y: 1, s: 1, cr: 2 },
+  { code: 'DELT 11232', name: 'English for Professionals', y: 1, s: 1, cr: 2 },
   { code: 'ACLT 11013', name: 'Academic Literacy I', y: 1, s: 1, cr: 0, nonGpa: true },
   {
     code: 'GNCT 11212',
@@ -47,10 +47,10 @@ export const modules = [
   // ==========================================
   // YEAR 1 SEMESTER 2 (All Common)
   // ==========================================
-  { code: 'MGTE 12253', name: 'Accounting Concepts and Costing', y: 1, s: 2, cr: 3 },
-  { code: 'INTE 12243', name: 'Computer Networks', y: 1, s: 2, cr: 3 },
   { code: 'INTE 12213', name: 'Object Oriented Programming', y: 1, s: 2, cr: 3 },
   { code: 'INTE 12223', name: 'Database Design and Development', y: 1, s: 2, cr: 3 },
+  { code: 'INTE 12243', name: 'Computer Networks', y: 1, s: 2, cr: 3 },
+  { code: 'MGTE 12253', name: 'Accounting Concepts and Costing', y: 1, s: 2, cr: 3 },
   { code: 'MGTE 12263', name: 'Optimization Methods in Management Science', y: 1, s: 2, cr: 3 },
   { code: 'MGTE 12273', name: 'Industry and Technology', y: 1, s: 2, cr: 3 },
   { code: 'PMAT 12212', name: 'Discrete Mathematics for Computing II', y: 1, s: 2, cr: 2 },
@@ -94,17 +94,17 @@ export const modules = [
   },
 
   // [MIT Pathway Specific]
-  { code: 'MGTE 21243', name: 'Marketing Management', y: 2, s: 1, cr: 3, pathway: 'mit' },
-  { code: 'MGTE 21233', name: 'Operations Management', y: 2, s: 1, cr: 3, pathway: 'mit' },
   { code: 'INTE 21343', name: 'Software Engineering Concepts', y: 2, s: 1, cr: 3, pathway: 'mit' },
+  { code: 'MGTE 21233', name: 'Operations Management', y: 2, s: 1, cr: 3, pathway: 'mit' },
+  { code: 'MGTE 21243', name: 'Marketing Management', y: 2, s: 1, cr: 3, pathway: 'mit' },
 
   // ==========================================
   // YEAR 2 SEMESTER 2
   // ==========================================
   // [Common Subjects]
   {
-    code: 'INTE 22343',
-    name: 'Data Structures and Algorithms',
+    code: 'INTE 22283',
+    name: 'Mobile Applications Development',
     y: 2,
     s: 2,
     cr: 3,
@@ -112,8 +112,8 @@ export const modules = [
   },
   { code: 'INTE 22303', name: 'Artificial Intelligence', y: 2, s: 2, cr: 3, pathway: 'both' },
   {
-    code: 'INTE 22283',
-    name: 'Mobile Applications Development',
+    code: 'INTE 22343',
+    name: 'Data Structures and Algorithms',
     y: 2,
     s: 2,
     cr: 3,
@@ -159,16 +159,16 @@ export const modules = [
 
   // [MIT Pathway Specific]
   {
-    code: 'MGTE 22273',
-    name: 'Human Resource Management & Leadership Communication',
+    code: 'MGTE 22263',
+    name: 'Logistics and Supply Chain Management',
     y: 2,
     s: 2,
     cr: 3,
     pathway: 'mit',
   },
   {
-    code: 'MGTE 22263',
-    name: 'Logistics and Supply Chain Management',
+    code: 'MGTE 22273',
+    name: 'Human Resource Management & Leadership Communication',
     y: 2,
     s: 2,
     cr: 3,
@@ -189,15 +189,6 @@ export const modules = [
     specCompulsory: ['bse', 'oscm', 'is'],
   },
   {
-    code: 'MGTE 31373',
-    name: 'Project Management',
-    y: 3,
-    s: 1,
-    cr: 3,
-    pathway: 'both',
-    specCompulsory: ['bse', 'oscm', 'is'],
-  },
-  {
     code: 'INTE 31393',
     name: 'Information Security',
     y: 3,
@@ -206,6 +197,15 @@ export const modules = [
     pathway: 'both',
     specCompulsory: ['is'],
     specOptional: ['bse', 'oscm'],
+  },
+  {
+    code: 'MGTE 31373',
+    name: 'Project Management',
+    y: 3,
+    s: 1,
+    cr: 3,
+    pathway: 'both',
+    specCompulsory: ['bse', 'oscm', 'is'],
   },
   {
     code: 'MGTE 31383',
@@ -268,13 +268,24 @@ export const modules = [
 
   // [MIT Degree Specific]
   {
-    code: 'MGTE 31393',
-    name: 'Managerial Finance',
+    code: 'INTE 31413',
+    name: 'Information Technology Infrastructure',
     y: 3,
     s: 1,
     cr: 3,
     pathway: 'mit',
-    specCompulsory: ['bse', 'oscm', 'is'],
+    specCompulsory: ['is'],
+    specOptional: ['bse', 'oscm'],
+  },
+  {
+    code: 'INTE 31423',
+    name: 'Data Analytics and Visualization',
+    y: 3,
+    s: 1,
+    cr: 3,
+    pathway: 'mit',
+    specCompulsory: ['is'],
+    specOptional: ['bse', 'oscm'],
   },
   {
     code: 'MGTE 31293',
@@ -285,6 +296,25 @@ export const modules = [
     pathway: 'mit',
     specCompulsory: ['bse'],
     specOptional: ['oscm', 'is'],
+  },
+  {
+    code: 'MGTE 31303',
+    name: 'Procurement and Supply Management',
+    y: 3,
+    s: 1,
+    cr: 3,
+    pathway: 'mit',
+    specCompulsory: ['oscm'],
+    specOptional: ['bse', 'is'],
+  },
+  {
+    code: 'MGTE 31393',
+    name: 'Managerial Finance',
+    y: 3,
+    s: 1,
+    cr: 3,
+    pathway: 'mit',
+    specCompulsory: ['bse', 'oscm', 'is'],
   },
   {
     code: 'MGTE 31403',
@@ -324,36 +354,6 @@ export const modules = [
     cr: 3,
     pathway: 'mit',
     specOptional: ['bse', 'oscm', 'is'],
-  },
-  {
-    code: 'MGTE 31303',
-    name: 'Procurement and Supply Management',
-    y: 3,
-    s: 1,
-    cr: 3,
-    pathway: 'mit',
-    specCompulsory: ['oscm'],
-    specOptional: ['bse', 'is'],
-  },
-  {
-    code: 'INTE 31423',
-    name: 'Data Analytics and Visualization',
-    y: 3,
-    s: 1,
-    cr: 3,
-    pathway: 'mit',
-    specCompulsory: ['is'],
-    specOptional: ['bse', 'oscm'],
-  },
-  {
-    code: 'INTE 31413',
-    name: 'Information Technology Infrastructure',
-    y: 3,
-    s: 1,
-    cr: 3,
-    pathway: 'mit',
-    specCompulsory: ['is'],
-    specOptional: ['bse', 'oscm'],
   },
   {
     code: 'MGTE 31443',

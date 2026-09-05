@@ -8,10 +8,7 @@ vi.mock('../../src/components/AnalyticsChart', () => ({
   default: () => <div data-testid="analytics-chart-stub" />,
 }));
 
-// Validates end-to-end integration between App state and TargetPlanner.
-// Seeds a device that has already been through onboarding — storage policy
-// accepted, install prompt dismissed, and one profile with a degree chosen —
-// so these tests start on the dashboard.
+// Seeds a device past onboarding, so these tests start on the dashboard.
 function skipOnboarding({ pathway = 'it', grades = {} } = {}) {
   localStorage.setItem(STORAGE_KEYS.SECURITY_ACCEPTED, 'true');
   localStorage.setItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED, Date.now().toString());

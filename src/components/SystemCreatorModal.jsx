@@ -2,8 +2,15 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 import MStripeDivider from './MStripeDivider';
+import useDialog from '../hooks/useDialog';
 
 export default function SystemCreatorModal({ isOpen, onClose }) {
+  const { ref: dialogRef, props: dialogProps } = useDialog({
+    isOpen,
+    onClose,
+    labelledBy: 'creator-modal-heading',
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -12,6 +19,8 @@ export default function SystemCreatorModal({ isOpen, onClose }) {
           className="fixed inset-0 bg-black/80 backdrop-blur-sm z-110 flex items-center justify-center p-4 select-none cursor-pointer"
         >
           <motion.div
+            ref={dialogRef}
+            {...dialogProps}
             onClick={(e) => e.stopPropagation()}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -21,7 +30,10 @@ export default function SystemCreatorModal({ isOpen, onClose }) {
             <MStripeDivider />
 
             <div className="p-6 flex flex-col items-center text-center">
-              <h3 className="font-bmw-display font-bold text-sm text-white uppercase tracking-widest mb-1.5">
+              <h3
+                id="creator-modal-heading"
+                className="font-bmw-display font-bold text-sm text-white uppercase tracking-widest mb-1.5"
+              >
                 SYSTEM CREATOR
               </h3>
               <span className="text-[10px] text-m-blue-light font-mono uppercase tracking-wider font-bold block mb-4">

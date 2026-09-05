@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserPlus } from 'lucide-react';
 import MStripeDivider from './MStripeDivider';
+import useDialog from '../hooks/useDialog';
 
 function NameField({ onSubmit, onCancel }) {
   const [name, setName] = useState('');
@@ -51,6 +52,12 @@ function NameField({ onSubmit, onCancel }) {
 }
 
 export default function ProfileNameModal({ isOpen, onSubmit, onCancel }) {
+  const { ref: dialogRef, props: dialogProps } = useDialog({
+    isOpen,
+    onClose: onCancel,
+    labelledBy: 'profile-name-heading',
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -61,6 +68,8 @@ export default function ProfileNameModal({ isOpen, onSubmit, onCancel }) {
           className="fixed inset-0 bg-black/90 backdrop-blur-md z-100 flex items-center justify-center p-4 select-none"
         >
           <motion.div
+            ref={dialogRef}
+            {...dialogProps}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.4 }}
@@ -70,7 +79,10 @@ export default function ProfileNameModal({ isOpen, onSubmit, onCancel }) {
 
             <div className="mt-2 flex flex-col items-center">
               <UserPlus className="w-7 h-7 text-m-blue-light mb-3" aria-hidden="true" />
-              <h2 className="text-xl font-black font-bmw-display text-white tracking-tighter uppercase leading-none">
+              <h2
+                id="profile-name-heading"
+                className="text-xl font-black font-bmw-display text-white tracking-tighter uppercase leading-none"
+              >
                 NAME YOUR PROFILE
               </h2>
               <div className="w-16 h-0.5 bg-hairline mx-auto mt-4" />

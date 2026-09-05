@@ -2,13 +2,22 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2 } from 'lucide-react';
 import MStripeDivider from './MStripeDivider';
+import useDialog from '../hooks/useDialog';
 
 export default function ResetModal({ isOpen, onClose, onConfirm }) {
+  const { ref: dialogRef, props: dialogProps } = useDialog({
+    isOpen,
+    onClose,
+    labelledBy: 'reset-modal-heading',
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-120 flex items-center justify-center p-4 select-none">
           <motion.div
+            ref={dialogRef}
+            {...dialogProps}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -17,7 +26,10 @@ export default function ResetModal({ isOpen, onClose, onConfirm }) {
             <MStripeDivider />
 
             <div className="p-6">
-              <h3 className="font-bmw-display font-bold text-sm text-white uppercase tracking-widest mb-3 flex items-center gap-2">
+              <h3
+                id="reset-modal-heading"
+                className="font-bmw-display font-bold text-sm text-white uppercase tracking-widest mb-3 flex items-center gap-2"
+              >
                 <Trash2 className="w-4 h-4 text-m-red" />
                 CONFIRM DATABASE RESET
               </h3>

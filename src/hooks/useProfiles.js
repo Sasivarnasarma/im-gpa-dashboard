@@ -9,8 +9,12 @@ const PROFILES_STORAGE = {
   fallback: store.EMPTY_CONTAINER,
 };
 
-export default function useProfiles() {
-  const [container, setContainer] = useLocalStorage(STORAGE_KEYS.PROFILES, PROFILES_STORAGE);
+export default function useProfiles(onStorageError) {
+  const [container, setContainer] = useLocalStorage(
+    STORAGE_KEYS.PROFILES,
+    PROFILES_STORAGE,
+    onStorageError
+  );
 
   const [menuOpen, setMenuOpen] = useState(false);
 

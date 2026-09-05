@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Pencil, Plus, Trash2, X } from 'lucide-react';
 import MStripeDivider from './MStripeDivider';
+import useDialog from '../hooks/useDialog';
 
 function ProfileRow({ profile, isActive, isOnlyProfile, onSwitch, onRename, onDelete }) {
   const [mode, setMode] = useState('idle');
@@ -153,6 +154,12 @@ export default function ProfileMenu({
   onDelete,
   onResetAll,
 }) {
+  const { ref: dialogRef, props: dialogProps } = useDialog({
+    isOpen,
+    onClose,
+    labelledBy: 'profile-menu-heading',
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -161,6 +168,8 @@ export default function ProfileMenu({
           className="fixed inset-0 bg-black/80 backdrop-blur-sm z-110 flex items-center justify-center p-4 select-none cursor-pointer"
         >
           <motion.div
+            ref={dialogRef}
+            {...dialogProps}
             onClick={(e) => e.stopPropagation()}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -172,7 +181,10 @@ export default function ProfileMenu({
             <div className="p-6 flex flex-col gap-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="font-bmw-display font-bold text-sm text-white uppercase tracking-widest">
+                  <h3
+                    id="profile-menu-heading"
+                    className="font-bmw-display font-bold text-sm text-white uppercase tracking-widest"
+                  >
                     PROFILES
                   </h3>
                   <p className="text-[10px] text-muted-text font-mono mt-1">
@@ -191,8 +203,6 @@ export default function ProfileMenu({
 
               <ul className="flex flex-col gap-2">
                 {profiles.map((profile) => (
-                  // Keyed by id so a rename or delete never leaves another
-                  // row holding this one's inline edit state.
                   <ProfileRow
                     key={profile.id}
                     profile={profile}
@@ -216,7 +226,6 @@ export default function ProfileMenu({
                 Add profile
               </button>
 
-              {/* Clears every profile, not just one. */}
               <div className="border-t border-hairline border-dashed pt-4">
                 <button
                   onClick={onResetAll}

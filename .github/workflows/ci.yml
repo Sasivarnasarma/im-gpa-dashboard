@@ -71,6 +71,14 @@ jobs:
           path: dist/
           retention-days: 7
 
+      - name: Upload Coverage Report
+        if: always() && hashFiles('.vitest/coverage/index.html') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: .vitest/coverage/
+          retention-days: 7
+
       - name: Generate CI Summary Report
         if: always()
         run: |
@@ -106,7 +114,7 @@ jobs:
           echo "| :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
           echo "| 🔍 **Lint** | $LINT_RES | Static analysis and code-quality rules |" >> $GITHUB_STEP_SUMMARY
           echo "| 🎨 **Format** | $FORMAT_RES | Consistent repository formatting |" >> $GITHUB_STEP_SUMMARY
-          echo "| 🧪 **Unit tests** | $TEST_RES | Behavior and unit test assertions |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🧪 **Unit tests** | $TEST_RES | Test assertions and coverage thresholds |" >> $GITHUB_STEP_SUMMARY
           echo "| 📦 **Build** | $BUILD_RES | Production PWA compilation |" >> $GITHUB_STEP_SUMMARY
           echo "| 🛡️ **Audit** | $AUDIT_RES | Dependency security vulnerabilities |" >> $GITHUB_STEP_SUMMARY
 
@@ -117,6 +125,7 @@ jobs:
           fi
 
           node .github/workflows/parse-test-results.cjs
+          node .github/workflows/coverage-summary.cjs
 
       - name: Set Workflow Exit Status
         if: always()

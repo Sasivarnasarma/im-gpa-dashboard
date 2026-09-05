@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import useDialog from '../hooks/useDialog';
 
 export default function WelcomeModal({
   isOpen,
@@ -8,6 +9,12 @@ export default function WelcomeModal({
   onSelectPathway,
   onSelectSpecialization,
 }) {
+  // No onClose: a degree has to be chosen before the dashboard means anything.
+  const { ref: dialogRef, props: dialogProps } = useDialog({
+    isOpen,
+    labelledBy: 'welcome-modal-heading',
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -18,6 +25,8 @@ export default function WelcomeModal({
           className="fixed inset-0 bg-black/90 backdrop-blur-md z-100 flex items-center justify-center p-4 select-none"
         >
           <motion.div
+            ref={dialogRef}
+            {...dialogProps}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.4 }}
@@ -33,7 +42,10 @@ export default function WelcomeModal({
               <>
                 {/* Step 1: Degree Selection */}
                 <div className="text-center mt-2">
-                  <h2 className="text-xl sm:text-2xl font-black font-bmw-display text-white tracking-tighter uppercase leading-none">
+                  <h2
+                    id="welcome-modal-heading"
+                    className="text-xl sm:text-2xl font-black font-bmw-display text-white tracking-tighter uppercase leading-none"
+                  >
                     SELECT DEGREE PROGRAMME
                   </h2>
                   <div className="w-16 h-0.5 bg-hairline mx-auto mt-4" />
@@ -98,7 +110,10 @@ export default function WelcomeModal({
                   <span className="text-[9px] text-m-orange font-bold uppercase tracking-[0.2em] block mb-2 font-bmw-display">
                     B.SC. HONS IN MIT SPECIALIZATION
                   </span>
-                  <h2 className="text-xl sm:text-2xl font-black font-bmw-display text-white tracking-tighter uppercase leading-none">
+                  <h2
+                    id="welcome-modal-heading"
+                    className="text-xl sm:text-2xl font-black font-bmw-display text-white tracking-tighter uppercase leading-none"
+                  >
                     SELECT YEAR 3 PATHWAY
                   </h2>
                   <div className="w-16 h-0.5 bg-hairline mx-auto mt-4" />

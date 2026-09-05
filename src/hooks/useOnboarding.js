@@ -17,7 +17,8 @@ export default function useOnboarding({
 }) {
   const [securityAccepted, setSecurityAccepted] = useLocalStorage(
     STORAGE_KEYS.SECURITY_ACCEPTED,
-    SECURITY_STORAGE
+    SECURITY_STORAGE,
+    triggerToast
   );
 
   const [modalStep, setModalStep] = useState(1);
@@ -52,8 +53,6 @@ export default function useOnboarding({
     );
   };
 
-  // Full reset: the profiles themselves are cleared by the profile store, so
-  // this only has to drop the device-level acceptance and rewind the modal.
   const resetOnboarding = () => {
     setModalStep(1);
     setSecurityAccepted(false);

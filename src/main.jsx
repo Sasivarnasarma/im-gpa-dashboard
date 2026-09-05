@@ -13,10 +13,7 @@ registerSW({ immediate: true });
 // Initialize telemetry (GA4 & Microsoft Clarity in production)
 initAnalytics();
 
-// Surface curriculum data problems the moment they're introduced while
-// editing modules.js, rather than waiting for a test run. Dev-only — the
-// import.meta.env.DEV guard lets this whole block tree-shake out of the
-// production bundle.
+// Dev-only: surface curriculum data problems while editing modules.js.
 if (import.meta.env.DEV) {
   const [{ validateModules }, { modules, gradeMap }] = await Promise.all([
     import('./lib/validateModules.js'),

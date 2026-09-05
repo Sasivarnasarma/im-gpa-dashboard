@@ -35,7 +35,7 @@ export default function App() {
     setToast(msg);
   }, []);
 
-  const profiles = useProfiles();
+  const profiles = useProfiles(triggerToast);
   const pwa = usePwaInstall(triggerToast);
   const onboarding = useOnboarding({
     triggerToast,
@@ -49,7 +49,6 @@ export default function App() {
 
   const [showResetModal, setShowResetModal] = useState(false);
   const [showDeveloperModal, setShowDeveloperModal] = useState(false);
-  // Set while adding a profile from the menu, which reuses the name prompt.
   const [addingProfile, setAddingProfile] = useState(false);
 
   useEffect(() => {
@@ -116,8 +115,6 @@ export default function App() {
     trackEvent('grade_updated');
   };
 
-  // Name prompt: first run creates the only profile, and the profile menu
-  // reuses it to add another.
   const handleNameSubmit = (name) => {
     profiles.addProfile(name);
     setAddingProfile(false);
@@ -193,6 +190,8 @@ export default function App() {
           setPathway={onboarding.setPathway}
           specialization={onboarding.specialization}
           setSpecialization={onboarding.setSpecialization}
+          profileName={profiles.activeProfile?.name}
+          onProfileClick={profiles.openMenu}
           triggerToast={triggerToast}
         />
 
@@ -280,6 +279,11 @@ export default function App() {
         </div>
       </footer>
 
+      {/* Live region: the animated toast below is aria-hidden */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {toast}
+      </div>
+
       {/* Toast Notification */}
       <AnimatePresence>
         {toast && (
@@ -287,6 +291,7 @@ export default function App() {
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            aria-hidden="true"
             className="fixed bottom-20 right-6 border border-hairline bg-surface-card p-4 shadow-2xl z-120 font-mono text-[10px] flex items-center gap-3 select-none"
           >
             <div className="h-3 w-3 rounded-full bg-m-red shrink-0" />
@@ -317,7 +322,7 @@ export default function App() {
 
       <SecurityModal isOpen={onboarding.showSecurityModal} onAccept={onboarding.acceptSecurity} />
 
-      {/* Profile switcher, and the name prompt it shares with first run */}
+      {/* Profile switcher and name prompt */}
       <ProfileMenu
         isOpen={profiles.menuOpen}
         onClose={profiles.closeMenu}

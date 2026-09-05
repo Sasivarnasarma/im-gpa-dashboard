@@ -1,8 +1,7 @@
 // Pure GPA calculation engine for curriculum tracking and analytics.
 
-// Filters the full curriculum down to what's relevant for the student's
-// pathway/specialization, and marks Year 3 MIT modules optional/compulsory
-// based on the chosen specialization.
+// Filters the curriculum to the student's pathway, marking Year 3 MIT
+// modules optional or compulsory by specialization.
 export function getActiveModules(modules, pathway, specialization) {
   const currentPathway = pathway || 'undecided';
 
@@ -39,9 +38,7 @@ const emptyYearStat = () => ({
   optionalTotal: 0,
 });
 
-// Rolls the active module list + entered grades up into every stat the
-// dashboard displays: cumulative/per-year GPA, credit completion counts, and
-// the compulsory/optional split.
+// Every stat the dashboard displays: GPA, credit counts, and the split.
 export function computeGpaStats(activeModules, grades, gradeMap) {
   let totalWeightedPoints = 0;
   let totalGpaCredits = 0;
@@ -148,9 +145,7 @@ const SEMESTER_ORDER = [
   { label: 'Y3S2', y: 3, s: 2 },
 ];
 
-// Builds the rolling cumulative-GPA-by-semester series behind the
-// Performance Trend chart. A semester only appears once at least one graded
-// credit exists anywhere at or before it.
+// Cumulative GPA by semester, behind the Performance Trend chart.
 export function computeTrendData(activeModules, grades, gradeMap) {
   const trendData = [];
   let rollingPoints = 0;

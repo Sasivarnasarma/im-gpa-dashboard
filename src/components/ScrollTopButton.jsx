@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
 
-// Floating scroll-to-top trigger. Self-contained: owns the scroll listener
-// that drives both its visibility (past 400px) and the circular progress
-// ring drawn around the arrow.
+// Floating scroll-to-top trigger with a circular progress ring.
 export default function ScrollTopButton() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -24,8 +22,7 @@ export default function ScrollTopButton() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Programmatic scrolling ignores the CSS scroll-behavior override, so the
-  // reduced-motion preference has to be consulted here directly.
+  // Programmatic scrolling bypasses the CSS override, so check the preference.
   const scrollToTop = () => {
     const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       ? 'auto'

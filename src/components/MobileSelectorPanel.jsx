@@ -1,4 +1,5 @@
 import React from 'react';
+import { UserRound } from 'lucide-react';
 import { SPECIALIZATION_LABELS } from '../data/constants';
 
 export default function MobileSelectorPanel({
@@ -6,12 +7,29 @@ export default function MobileSelectorPanel({
   setPathway,
   specialization,
   setSpecialization,
+  profileName,
+  onProfileClick,
   triggerToast,
 }) {
   return (
     <div className="flex flex-col sm:flex-row gap-3 p-4 border border-hairline bg-surface-soft md:hidden select-none">
+      {/* Profile: the navbar shows only an icon at this width */}
+      <button
+        type="button"
+        onClick={onProfileClick}
+        className="flex items-center justify-between font-mono text-xs w-full sm:w-auto cursor-pointer text-left group"
+      >
+        <span className="text-muted-text font-bold uppercase text-[9px] mr-2">PROFILE:</span>
+        <span className="flex items-center gap-1.5 min-w-0">
+          <UserRound className="w-3 h-3 text-m-blue-light shrink-0" aria-hidden="true" />
+          <span className="font-black uppercase text-[10px] sm:text-xs text-white truncate group-hover:text-m-blue-light transition-colors">
+            {profileName || 'PROFILE'}
+          </span>
+        </span>
+      </button>
+
       {/* Degree Pathway Selector */}
-      <div className="flex items-center justify-between font-mono text-xs w-full sm:w-auto relative cursor-pointer focus-within:ring-1 focus-within:ring-white">
+      <div className="flex items-center justify-between font-mono text-xs w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-hairline pt-3 sm:pt-0 sm:pl-4 relative cursor-pointer focus-within:ring-1 focus-within:ring-white">
         <span className="text-muted-text font-bold uppercase text-[9px] mr-2">DEGREE:</span>
         <span
           className={`font-black uppercase text-[10px] sm:text-xs font-mono select-none pointer-events-none ${!pathway || pathway === 'undecided' ? 'text-muted-text' : 'text-m-red'}`}

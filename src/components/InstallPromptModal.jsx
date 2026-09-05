@@ -1,8 +1,15 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MStripeDivider from './MStripeDivider';
+import useDialog from '../hooks/useDialog';
 
 export default function InstallPromptModal({ isOpen, onInstall, onDismiss }) {
+  const { ref: dialogRef, props: dialogProps } = useDialog({
+    isOpen,
+    onClose: onDismiss,
+    labelledBy: 'install-modal-heading',
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -13,6 +20,8 @@ export default function InstallPromptModal({ isOpen, onInstall, onDismiss }) {
           className="fixed inset-0 bg-black/90 backdrop-blur-md z-100 flex items-center justify-center p-4 select-none"
         >
           <motion.div
+            ref={dialogRef}
+            {...dialogProps}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.4 }}
@@ -21,7 +30,10 @@ export default function InstallPromptModal({ isOpen, onInstall, onDismiss }) {
             <MStripeDivider />
 
             <div className="text-center mt-2">
-              <h2 className="text-xl sm:text-2xl font-black font-bmw-display text-white tracking-tighter uppercase leading-none">
+              <h2
+                id="install-modal-heading"
+                className="text-xl sm:text-2xl font-black font-bmw-display text-white tracking-tighter uppercase leading-none"
+              >
                 INSTALL AS APP
               </h2>
               <div className="w-16 h-0.5 bg-hairline mx-auto mt-4" />
