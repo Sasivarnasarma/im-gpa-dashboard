@@ -1,5 +1,9 @@
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+
+// Shared with the CI summary script so the two cannot drift.
+const thresholds = JSON.parse(readFileSync('./coverage-thresholds.json', 'utf8'));
 
 // Separate from vite.config.js so the PWA plugin never runs in tests.
 export default defineConfig({
@@ -19,13 +23,7 @@ export default defineConfig({
       // Only what ships: data tables are declarations, not logic.
       include: ['src/**/*.{js,jsx}'],
       exclude: ['src/main.jsx', 'src/data/**', 'src/**/*.d.ts'],
-      // Just under today's level, so a regression fails CI. Raise as it grows.
-      thresholds: {
-        statements: 69,
-        branches: 68,
-        functions: 56,
-        lines: 70,
-      },
+      thresholds,
     },
   },
 });

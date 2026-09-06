@@ -1,6 +1,7 @@
 import React from 'react';
 import { GRADE_OPTIONS, PASSFAIL_OPTIONS } from '../data/modules';
 
+// One semester's modules, each with its grade picker.
 export default function SemesterCard({
   semLabel,
   semId,

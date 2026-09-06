@@ -136,7 +136,7 @@ export function computeGpaStats(activeModules, grades, gradeMap) {
   };
 }
 
-export const SEMESTER_ORDER = [
+const SEMESTER_ORDER = [
   { label: 'Y1S1', y: 1, s: 1 },
   { label: 'Y1S2', y: 1, s: 2 },
   { label: 'Y2S1', y: 2, s: 1 },
@@ -254,6 +254,8 @@ const TIER_EPSILON = 1e-9;
 
 const meetsThreshold = (gpa, threshold) => gpa >= threshold - TIER_EPSILON;
 
+// Which honours band a GPA falls in, with a tolerance so a displayed 3.30
+// is not ruled out by floating-point drift.
 export function getGpaTier(gpa, hasGradedCredits) {
   if (!hasGradedCredits) return GPA_TIER.AWAITING;
   if (meetsThreshold(gpa, FIRST_CLASS_GPA)) return GPA_TIER.FIRST;

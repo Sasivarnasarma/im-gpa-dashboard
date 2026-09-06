@@ -9,8 +9,10 @@ if (!summaryPath) {
   process.exit(0);
 }
 
-// Mirrors coverage.thresholds in vitest.config.js.
-const THRESHOLDS = { statements: 69, branches: 68, functions: 56, lines: 70 };
+// Same file vitest.config.js reads, so the gate and this report agree.
+const THRESHOLDS = JSON.parse(
+  fs.readFileSync(path.join(process.cwd(), 'coverage-thresholds.json'), 'utf8')
+);
 
 const bar = (pct) => {
   const filled = Math.round(pct / 10);

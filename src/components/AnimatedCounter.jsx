@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { animate } from 'framer-motion';
 
+// Counts from the value on screen to the new one instead of jumping.
 export default function AnimatedCounter({ value, decimals = 2 }) {
   const nodeRef = useRef(null);
 

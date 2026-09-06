@@ -14,7 +14,7 @@ export const STATUS = { MET: 'met', PENDING: 'pending', FAILED: 'failed' };
 const POINTS = { A: 4.0, B: 3.0, C: 2.0, D: 1.0 };
 
 // Handbook thresholds for the three-year exit degree.
-export const EXIT_DEGREE_RULES = {
+const EXIT_DEGREE_RULES = {
   minYear12Credits: 72,
   minTotalCredits: 102,
   minYear3Credits: 30,

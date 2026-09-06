@@ -9,6 +9,7 @@ const PROFILES_STORAGE = {
   fallback: store.EMPTY_CONTAINER,
 };
 
+// Owns every profile and which one is in use.
 export default function useProfiles(onStorageError) {
   const [container, setContainer] = useLocalStorage(
     STORAGE_KEYS.PROFILES,
@@ -33,7 +34,6 @@ export default function useProfiles(onStorageError) {
     addProfile: (name) => setContainer((c) => store.addProfile(c, name)),
     switchProfile: (id) => setContainer((c) => store.switchProfile(c, id)),
     renameProfile: (id, name) => setContainer((c) => store.renameProfile(c, id, name)),
-    duplicateProfile: (id, name) => setContainer((c) => store.duplicateProfile(c, id, name)),
     removeProfile: (id) => setContainer((c) => store.removeProfile(c, id)),
 
     updateActive: (patch) => setContainer((c) => store.updateActive(c, patch)),

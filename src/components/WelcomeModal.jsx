@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useDialog from '../hooks/useDialog';
 
+// Degree step: picks the pathway, then the MIT specialization.
 export default function WelcomeModal({
   isOpen,
   modalStep,

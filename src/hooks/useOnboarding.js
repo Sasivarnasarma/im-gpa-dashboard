@@ -8,6 +8,7 @@ const SECURITY_STORAGE = {
   fallback: false,
 };
 
+// Drives the onboarding sequence and the degree choices it produces.
 export default function useOnboarding({
   triggerToast,
   installPromptCompleted,

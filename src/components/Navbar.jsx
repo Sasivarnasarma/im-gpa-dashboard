@@ -4,6 +4,7 @@ import AnimatedCounter from './AnimatedCounter';
 import { SPECIALIZATION_LABELS } from '../data/constants';
 import { isAtRiskGpa } from '../lib/gpaEngine';
 
+// Fixed top bar: cumulative GPA, degree selectors, install, and profiles.
 export default function Navbar({
   cgpa,
   hasGradedCredits,

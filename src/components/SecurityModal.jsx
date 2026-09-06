@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 import useDialog from '../hooks/useDialog';
 
+// First step of onboarding: the local-storage policy, which must be accepted.
 export default function SecurityModal({ isOpen, onAccept }) {
   // No onClose: accepting the policy is the only way past this step.
   const { ref: dialogRef, props: dialogProps } = useDialog({

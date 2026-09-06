@@ -27,6 +27,7 @@ const TIER_BOUNDS = {
   [GPA_TIER.FIRST]: { from: FIRST_CLASS_GPA, next: null, nextLabel: null },
 };
 
+// Progress through the current class, and what closing the gap would take.
 export const getTierGoalDetails = (gpa, tier) => {
   if (tier === GPA_TIER.AWAITING) {
     return {

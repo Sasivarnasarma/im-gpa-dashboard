@@ -10,6 +10,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 
+// Line chart of cumulative GPA across the semesters graded so far.
 export default function AnalyticsChart({ data }) {
   if (!data || data.length === 0) {
     return (

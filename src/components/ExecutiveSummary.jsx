@@ -7,6 +7,7 @@ import YearGpaTile from './YearGpaTile';
 import { getTierGoalDetails, TIER_BADGE_COLORS } from '../lib/honoursGoal';
 import { isAtRiskGpa, getGpaTier, TIER_LABELS } from '../lib/gpaEngine';
 
+// Headline panel: cumulative GPA, honours class, and completion progress.
 export default function ExecutiveSummary({
   cgpa,
   hasGradedCredits,
@@ -26,7 +27,7 @@ export default function ExecutiveSummary({
   const atRisk = isAtRiskGpa(cgpa, hasGradedCredits);
 
   return (
-    <div id="executive-summary" className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <div className="border border-hairline bg-surface-soft p-5 rounded-none flex flex-col gap-4">
         <span className="font-bmw-display font-bold text-[11px] uppercase tracking-widest text-white border-b border-hairline pb-2.5">
           EXECUTIVE SUMMARY

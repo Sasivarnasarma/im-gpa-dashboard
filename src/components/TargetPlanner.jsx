@@ -3,6 +3,7 @@ import AnimatedCounter from './AnimatedCounter';
 import { computeTargetPlan } from '../lib/targetPlan';
 import { trackEvent } from '../lib/insights';
 
+// Works out the average needed across remaining credits to hit a target GPA.
 export default function TargetPlanner({
   totalGpaCredits,
   totalWeightedPoints,

@@ -51,6 +51,7 @@ function NameField({ onSubmit, onCancel }) {
   );
 }
 
+// Names a profile: on first run, and when adding one from the profile menu.
 export default function ProfileNameModal({ isOpen, onSubmit, onCancel }) {
   const { ref: dialogRef, props: dialogProps } = useDialog({
     isOpen,

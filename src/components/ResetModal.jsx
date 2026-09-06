@@ -4,6 +4,7 @@ import { Trash2 } from 'lucide-react';
 import MStripeDivider from './MStripeDivider';
 import useDialog from '../hooks/useDialog';
 
+// Confirms wiping every profile from the device.
 export default function ResetModal({ isOpen, onClose, onConfirm }) {
   const { ref: dialogRef, props: dialogProps } = useDialog({
     isOpen,

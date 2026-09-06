@@ -2,6 +2,8 @@ import React from 'react';
 import { UserRound } from 'lucide-react';
 import { SPECIALIZATION_LABELS } from '../data/constants';
 
+// Profile, degree and specialization controls, for widths where the navbar
+// cannot hold them.
 export default function MobileSelectorPanel({
   pathway,
   setPathway,

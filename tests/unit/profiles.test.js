@@ -3,7 +3,6 @@ import {
   EMPTY_CONTAINER,
   addProfile,
   createProfile,
-  duplicateProfile,
   getActiveProfile,
   parseContainer,
   removeProfile,
@@ -60,24 +59,6 @@ describe('profile store', () => {
   it('ignores a switch to an unknown profile rather than blanking the active one', () => {
     const { c } = withTwo();
     expect(switchProfile(c, 'p_nope')).toBe(c);
-  });
-
-  it('gives a duplicate its own grades object, not a shared reference', () => {
-    // A shallow copy would alias `grades`, so editing the duplicate would
-    // silently rewrite the profile it came from.
-    const { c, first } = withTwo();
-    const dup = duplicateProfile(c, first, 'Amara scenario');
-    const edited = updateActive(dup, { grades: { ...getActiveProfile(dup).grades, X: 'E' } });
-
-    expect(getActiveProfile(edited).grades).toEqual({ 'MGTE 11243': 'A+', X: 'E' });
-    expect(edited.profiles.find((p) => p.id === first).grades).toEqual({ 'MGTE 11243': 'A+' });
-  });
-
-  it('carries pathway and target across a duplicate', () => {
-    const { c, first } = withTwo();
-    const dup = getActiveProfile(duplicateProfile(c, first));
-    expect(dup.pathway).toBe('it');
-    expect(dup.targetGpa).toBe('3.70');
   });
 
   it('hands the active slot to a neighbour when the active profile is removed', () => {

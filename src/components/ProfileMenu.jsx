@@ -143,6 +143,7 @@ function ProfileRow({ profile, isActive, isOnlyProfile, onSwitch, onRename, onDe
   );
 }
 
+// Profile switcher: list, switch, rename, delete, add, and the full reset.
 export default function ProfileMenu({
   isOpen,
   onClose,

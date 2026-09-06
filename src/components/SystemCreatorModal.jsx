@@ -4,6 +4,7 @@ import { ExternalLink } from 'lucide-react';
 import MStripeDivider from './MStripeDivider';
 import useDialog from '../hooks/useDialog';
 
+// Credits panel for whoever built the app.
 export default function SystemCreatorModal({ isOpen, onClose }) {
   const { ref: dialogRef, props: dialogProps } = useDialog({
     isOpen,

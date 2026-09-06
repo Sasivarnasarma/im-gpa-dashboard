@@ -1,5 +1,6 @@
 import React from 'react';
 
+// The three-stripe M accent bar used across panels and modals.
 export default function MStripeDivider({ className = '' }) {
   return (
     <div className={`h-1 w-full flex select-none ${className}`}>

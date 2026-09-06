@@ -30,6 +30,8 @@ import useProfiles from './hooks/useProfiles';
 
 import { tagPathway, trackEvent } from './lib/insights';
 
+// Root component: owns the profile, onboarding and GPA state, and lays out
+// the dashboard around them.
 export default function App() {
   const [toast, setToast] = useState(null);
   const triggerToast = useCallback((msg) => {

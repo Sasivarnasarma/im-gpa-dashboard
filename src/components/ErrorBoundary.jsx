@@ -15,10 +15,6 @@ export default class ErrorBoundary extends React.Component {
     console.error('GPA Dashboard crashed:', error, info);
   }
 
-  handleReset = () => {
-    this.setState({ hasError: false });
-  };
-
   render() {
     if (!this.state.hasError) {
       return this.props.children;

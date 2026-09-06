@@ -6,6 +6,7 @@ const VALID_GRADE_TYPES = ['passfail'];
 const VALID_YEARS = [1, 2, 3];
 const VALID_SEMESTERS = [1, 2];
 
+// Checks the curriculum for problems the app cannot detect at runtime.
 export function validateModules(modules, gradeMap) {
   const problems = [];
   const seenCodes = new Set();

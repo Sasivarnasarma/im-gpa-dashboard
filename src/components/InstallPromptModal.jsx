@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import MStripeDivider from './MStripeDivider';
 import useDialog from '../hooks/useDialog';
 
+// Offers to install the app, shown once the storage policy is accepted.
 export default function InstallPromptModal({ isOpen, onInstall, onDismiss }) {
   const { ref: dialogRef, props: dialogProps } = useDialog({
     isOpen,
