@@ -1,6 +1,12 @@
 import { useMemo } from 'react';
 import { modules, gradeMap } from '../data/modules';
-import { getActiveModules, computeGpaStats, computeTrendData, isAtRiskGpa } from '../lib/gpaEngine';
+import {
+  getActiveModules,
+  computeGpaStats,
+  computeTrendData,
+  computeSemesterStats,
+  isAtRiskGpa,
+} from '../lib/gpaEngine';
 import { assessEligibility, assessClasses, resolveAwardTier } from '../lib/degreeAudit';
 import { getGpaTier } from '../lib/gpaEngine';
 
@@ -25,6 +31,7 @@ export default function useGpaComputation(grades, pathway, specialization) {
     const activeModules = getActiveModules(modules, pathway, specialization);
     const stats = computeGpaStats(activeModules, grades, gradeMap);
     const trendData = computeTrendData(activeModules, grades, gradeMap);
+    const semesters = computeSemesterStats(activeModules, grades, gradeMap);
     const classes = assessClasses(activeModules, grades, gradeMap, stats.cgpa);
 
     const years = [1, 2, 3].map((year) => {
@@ -53,6 +60,7 @@ export default function useGpaComputation(grades, pathway, specialization) {
       currentPathway: pathway || 'undecided',
       stats,
       trendData,
+      semesters,
       years,
       eligibility: assessEligibility(activeModules, grades, gradeMap, stats.cgpa),
       classes,

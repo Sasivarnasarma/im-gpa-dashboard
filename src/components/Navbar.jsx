@@ -45,7 +45,7 @@ export default function Navbar({
           <button
             type="button"
             onClick={onCgpaClick}
-            title="Scroll to Executive Summary"
+            title="Scroll to top"
             className="px-3 py-1.5 border border-hairline bg-surface-soft font-mono text-xs cursor-pointer hover:border-m-blue-light transition-colors select-none flex items-center"
           >
             <span className="text-muted-text font-bold uppercase text-[9px] mr-2">CGPA:</span>

@@ -6,6 +6,7 @@ import TargetPlanner from './components/TargetPlanner';
 import Navbar from './components/Navbar';
 import MobileSelectorPanel from './components/MobileSelectorPanel';
 import YearSection from './components/YearSection';
+import SemesterRail from './components/SemesterRail';
 import ExecutiveSummary from './components/ExecutiveSummary';
 import ScrollTopButton from './components/ScrollTopButton';
 import DegreeAudit from './components/DegreeAudit';
@@ -94,13 +95,19 @@ export default function App() {
   const scrollBehavior = () =>
     window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 
-  const scrollToExecutiveSummary = () => {
-    const el = document.getElementById('executive-summary');
-    if (el) {
-      const yOffset = -80;
-      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: scrollBehavior() });
-    }
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: scrollBehavior() });
+  };
+
+  const scrollToSemester = (year, sem) => {
+    // A semester with no curriculum yet has no card, so fall back to the year,
+    // which is where the degree selection lives.
+    const el =
+      document.getElementById(`sem-${year}-${sem}`) ?? document.getElementById(`year-${year}`);
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.pageYOffset - 80;
+    window.scrollTo({ top: y, behavior: scrollBehavior() });
+    trackEvent('semester_jump');
   };
 
   const handleGradeChange = (code, val) => {
@@ -153,7 +160,7 @@ export default function App() {
     trackEvent('database_reset');
   };
 
-  const { currentPathway, stats, trendData, years, eligibility, classes, awardTier } =
+  const { currentPathway, stats, trendData, semesters, years, eligibility, classes, awardTier } =
     useGpaComputation(grades, onboarding.pathway, onboarding.specialization);
 
   return (
@@ -177,7 +184,7 @@ export default function App() {
         triggerToast={triggerToast}
         showInstallBtn={pwa.showInstallBtn}
         onInstallClick={pwa.reopenPrompt}
-        onCgpaClick={scrollToExecutiveSummary}
+        onCgpaClick={scrollToTop}
       />
 
       <div className="pt-24" />
@@ -243,6 +250,8 @@ export default function App() {
 
           {/* Curriculum Years */}
           <div className="lg:col-span-8 flex flex-col gap-10">
+            <SemesterRail semesters={semesters} onJump={scrollToSemester} />
+
             {years.map((year) => (
               <YearSection
                 key={year.year}

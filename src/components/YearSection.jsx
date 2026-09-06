@@ -14,7 +14,7 @@ export default function YearSection({
   onSelectSpecialization,
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div id={`year-${year.year}`} className="flex flex-col gap-4 scroll-mt-24">
       {/* Year Header & Stats */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-hairline pb-2 font-bmw-display select-none">
         <h2 className="font-black text-lg text-white uppercase tracking-tight">{year.name}</h2>
@@ -121,6 +121,7 @@ export default function YearSection({
           {/* Semester Cards */}
           <SemesterCard
             semLabel="Semester 01"
+            semId={`sem-${year.year}-1`}
             modules={year.sem1}
             grades={grades}
             onGradeChange={onGradeChange}
@@ -129,6 +130,7 @@ export default function YearSection({
           />
           <SemesterCard
             semLabel="Semester 02"
+            semId={`sem-${year.year}-2`}
             modules={year.sem2}
             grades={grades}
             onGradeChange={onGradeChange}

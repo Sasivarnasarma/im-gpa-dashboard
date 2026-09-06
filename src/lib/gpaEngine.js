@@ -136,7 +136,7 @@ export function computeGpaStats(activeModules, grades, gradeMap) {
   };
 }
 
-const SEMESTER_ORDER = [
+export const SEMESTER_ORDER = [
   { label: 'Y1S1', y: 1, s: 1 },
   { label: 'Y1S2', y: 1, s: 2 },
   { label: 'Y2S1', y: 2, s: 1 },
@@ -144,6 +144,43 @@ const SEMESTER_ORDER = [
   { label: 'Y3S1', y: 3, s: 1 },
   { label: 'Y3S2', y: 3, s: 2 },
 ];
+
+// GPA within each semester on its own, as opposed to the cumulative figure
+// the trend chart plots.
+export function computeSemesterStats(activeModules, grades, gradeMap) {
+  return SEMESTER_ORDER.map((sem) => {
+    const semModules = activeModules.filter((m) => m.y === sem.y && m.s === sem.s);
+    let points = 0;
+    let credits = 0;
+    let gradedCount = 0;
+    let compulsoryCount = 0;
+
+    semModules.forEach((mod) => {
+      const grade = grades[mod.code] || '';
+      const hasGrade = grade !== '';
+
+      // An optional module counts toward the target only once it is graded.
+      if (!mod.optional || hasGrade) compulsoryCount++;
+      if (!hasGrade) return;
+
+      gradedCount++;
+      if (!mod.nonGpa) {
+        points += gradeMap[grade] * mod.cr;
+        credits += mod.cr;
+      }
+    });
+
+    return {
+      ...sem,
+      gpa: credits > 0 ? points / credits : 0,
+      hasGrades: credits > 0,
+      gradedCount,
+      compulsoryCount,
+      moduleCount: semModules.length,
+      offered: semModules.length > 0,
+    };
+  });
+}
 
 // Cumulative GPA by semester, behind the Performance Trend chart.
 export function computeTrendData(activeModules, grades, gradeMap) {

@@ -1,0 +1,82 @@
+name: Release Build
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to attach the build to'
+        required: true
+
+# Needs write access to attach the archive to the release.
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and Attach
+    runs-on: ubuntu-latest
+
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 11.7.0
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        env:
+          VITE_GA_MEASUREMENT_ID: ${{ vars.VITE_GA_MEASUREMENT_ID }}
+          VITE_CLARITY_PROJECT_ID: ${{ vars.VITE_CLARITY_PROJECT_ID }}
+        run: pnpm run build
+
+      - name: Package dist
+        run: |
+          cd dist
+          zip -r "../gpa-dashboard-${TAG}.zip" .
+          cd ..
+          sha256sum "gpa-dashboard-${TAG}.zip" > "gpa-dashboard-${TAG}.zip.sha256"
+          ls -lh "gpa-dashboard-${TAG}.zip"
+
+      - name: Attach to Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$TAG" \
+            "gpa-dashboard-${TAG}.zip" \
+            "gpa-dashboard-${TAG}.zip.sha256" \
+            --clobber
+
+      - name: Summary
+        run: |
+          {
+            echo "## 📦 Release Build"
+            echo ""
+            echo "Attached to [\`$TAG\`](${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG):"
+            echo ""
+            echo "| Asset | Size |"
+            echo "| :--- | :--- |"
+            echo "| \`gpa-dashboard-${TAG}.zip\` | $(du -h "gpa-dashboard-${TAG}.zip" | cut -f1) |"
+            echo "| \`gpa-dashboard-${TAG}.zip.sha256\` | checksum |"
+          } >> $GITHUB_STEP_SUMMARY

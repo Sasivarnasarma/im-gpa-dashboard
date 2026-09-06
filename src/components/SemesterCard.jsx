@@ -3,6 +3,7 @@ import { GRADE_OPTIONS, PASSFAIL_OPTIONS } from '../data/modules';
 
 export default function SemesterCard({
   semLabel,
+  semId,
   modules,
   grades,
   onGradeChange,
@@ -10,7 +11,10 @@ export default function SemesterCard({
   bulletColor,
 }) {
   return (
-    <div className="border border-hairline bg-surface-card rounded-none overflow-hidden h-full flex flex-col justify-between">
+    <div
+      id={semId}
+      className="border border-hairline bg-surface-card rounded-none overflow-hidden h-full flex flex-col justify-between scroll-mt-24"
+    >
       <div>
         {/* Semester Header */}
         <div className="bg-surface-soft border-b border-hairline px-4 py-3 flex items-center justify-between">
