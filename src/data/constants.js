@@ -4,6 +4,19 @@ export const STORAGE_KEYS = {
   SECURITY_ACCEPTED: 'mit-gpa-calculator-security-accepted',
   INSTALL_PROMPT_DISMISSED: 'mit-gpa-calculator-install-prompt-dismissed',
   INSTALLED: 'mit-gpa-calculator-installed',
+  ANNOUNCEMENT_DISMISSED: 'mit-gpa-calculator-announcement-dismissed',
+};
+
+// Edit the content here and change the ID to show a new announcement.
+// IDs can be strings or numbers. Set id to null to disable the popup.
+export const ANNOUNCEMENT = {
+  id: '1',
+  title: 'Your results, ready to share',
+  message:
+    'You can now save or share your results as a beautifully formatted image. Export all results, a year, or a semester, and choose whether to include your name and honours standing. Look for “Export results” above the dashboard.',
+  buttonText: 'Got it',
+  // Optional extra button: fill in both fields to display it (http/https URLs).
+  link: { url: '', text: '' },
 };
 
 // Display abbreviations for the MIT Year 3 specializations

@@ -13,6 +13,7 @@ import DegreeAudit from './components/DegreeAudit';
 import GradingScale from './components/GradingScale';
 import ProfileMenu from './components/ProfileMenu';
 import ResultsExport from './components/ResultsExport';
+import AnnouncementModal from './components/AnnouncementModal';
 // Eagerly loaded to prevent flash during onboarding
 import SecurityModal from './components/SecurityModal';
 import WelcomeModal from './components/WelcomeModal';
@@ -28,6 +29,7 @@ import useOnboarding from './hooks/useOnboarding';
 import usePwaInstall from './hooks/usePwaInstall';
 import useGpaComputation from './hooks/useGpaComputation';
 import useProfiles from './hooks/useProfiles';
+import useAnnouncement from './hooks/useAnnouncement';
 
 import { tagPathway, trackEvent } from './lib/insights';
 
@@ -54,6 +56,14 @@ export default function App() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [showDeveloperModal, setShowDeveloperModal] = useState(false);
   const [addingProfile, setAddingProfile] = useState(false);
+  const announcement = useAnnouncement(triggerToast);
+  const showAnnouncement =
+    announcement.shouldShow &&
+    !onboarding.isOnboardingActive &&
+    !showResetModal &&
+    !showDeveloperModal &&
+    !profiles.menuOpen &&
+    !addingProfile;
 
   useEffect(() => {
     if (toast) {
@@ -69,7 +79,8 @@ export default function App() {
       showResetModal ||
       showDeveloperModal ||
       profiles.menuOpen ||
-      addingProfile
+      addingProfile ||
+      showAnnouncement
     ) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -85,6 +96,7 @@ export default function App() {
     showDeveloperModal,
     profiles.menuOpen,
     addingProfile,
+    showAnnouncement,
   ]);
 
   // Sync academic pathway tags with Clarity session analytics
@@ -370,6 +382,11 @@ export default function App() {
         setModalStep={onboarding.setModalStep}
         onSelectPathway={onboarding.selectPathway}
         onSelectSpecialization={onboarding.selectSpecialization}
+      />
+      <AnnouncementModal
+        isOpen={showAnnouncement}
+        announcement={announcement.announcement}
+        onDismiss={announcement.dismiss}
       />
     </div>
   );

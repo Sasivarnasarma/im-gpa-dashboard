@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, within, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../../src/App';
-import { STORAGE_KEYS } from '../../src/data/constants';
+import { ANNOUNCEMENT, STORAGE_KEYS } from '../../src/data/constants';
 
 // Mock AnalyticsChart since jsdom lacks ResizeObserver layout measurement
 vi.mock('../../src/components/AnalyticsChart', () => ({
@@ -11,6 +11,7 @@ vi.mock('../../src/components/AnalyticsChart', () => ({
 
 // Seeds a device past onboarding, so these tests start on the dashboard.
 function skipOnboarding({ pathway = 'it', grades = {} } = {}) {
+  localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENT_DISMISSED, String(ANNOUNCEMENT.id));
   localStorage.setItem(STORAGE_KEYS.SECURITY_ACCEPTED, 'true');
   localStorage.setItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED, Date.now().toString());
   localStorage.setItem(
@@ -33,6 +34,43 @@ function skipOnboarding({ pathway = 'it', grades = {} } = {}) {
     })
   );
 }
+
+describe('App — announcements', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('shows new announcements, persists dismissal, and keeps them hidden after remount', async () => {
+    skipOnboarding();
+    localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENT_DISMISSED, 'previous-announcement');
+    const first = render(<App />);
+    expect(screen.getByRole('dialog', { name: ANNOUNCEMENT.title })).toBeInTheDocument();
+    expect(document.body.style.overflow).toBe('hidden');
+    await userEvent.click(screen.getByRole('button', { name: ANNOUNCEMENT.buttonText }));
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: ANNOUNCEMENT.title })).not.toBeInTheDocument()
+    );
+    expect(localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT_DISMISSED)).toBe(String(ANNOUNCEMENT.id));
+    expect(document.body.style.overflow).toBe('');
+    first.unmount();
+    render(<App />);
+    expect(screen.queryByRole('dialog', { name: ANNOUNCEMENT.title })).not.toBeInTheDocument();
+  });
+
+  it('waits for security and degree onboarding to finish before showing the announcement', async () => {
+    skipOnboarding({ pathway: null });
+    localStorage.removeItem(STORAGE_KEYS.ANNOUNCEMENT_DISMISSED);
+    localStorage.removeItem(STORAGE_KEYS.SECURITY_ACCEPTED);
+    render(<App />);
+    expect(screen.queryByRole('dialog', { name: ANNOUNCEMENT.title })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /proceed to setup/i }));
+    expect(
+      await screen.findByRole('dialog', { name: /select degree programme/i })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: ANNOUNCEMENT.title })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /^IT DEGREE/i }));
+    expect(await screen.findByRole('dialog', { name: ANNOUNCEMENT.title })).toBeInTheDocument();
+    expect(localStorage.getItem(STORAGE_KEYS.ANNOUNCEMENT_DISMISSED)).toBeNull();
+  });
+});
 
 describe('App — Target GPA Planner wiring', () => {
   beforeEach(() => {
@@ -161,6 +199,7 @@ describe('App — managing profiles from the menu', () => {
   });
 
   const seedTwo = () => {
+    localStorage.setItem(STORAGE_KEYS.ANNOUNCEMENT_DISMISSED, String(ANNOUNCEMENT.id));
     localStorage.setItem(STORAGE_KEYS.SECURITY_ACCEPTED, 'true');
     localStorage.setItem(STORAGE_KEYS.INSTALL_PROMPT_DISMISSED, Date.now().toString());
     localStorage.setItem(

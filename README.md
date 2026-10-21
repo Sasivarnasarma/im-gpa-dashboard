@@ -122,6 +122,23 @@ pnpm run build
 
 ---
 
+## Announcement popup
+
+Edit `ANNOUNCEMENT` in `src/data/constants.js` to set the popup's `id`, `title`,
+`message`, and `buttonText`. Change the ID whenever you want users to see it
+again, even if they dismissed the previous announcement. Set `id: null` to
+disable it. Messages support line breaks and are displayed as plain text.
+
+To show an extra URL button, set `link: { url: 'https://example.com', text: 'Learn more' }`
+in the same announcement. Both fields must be filled in, and the URL must use
+HTTP or HTTPS. Leave them empty (or set `link: null`) to hide the button. The
+link opens in a new tab and does not dismiss the announcement.
+
+The popup appears after onboarding. Dismissing it with the button or Escape saves
+its ID in localStorage, shared by all profiles in that browser. Editing text
+without changing the ID does not show it again to users who already dismissed it.
+If storage is unavailable, dismissal lasts for the current app session only.
+
 ## 📝 License
 
 Distributed under the MIT License. Created with ❤️ by **Sasivarnasarma**.
