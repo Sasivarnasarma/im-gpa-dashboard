@@ -17,6 +17,7 @@ A high-performance, responsive GPA calculator and academic curriculum tracker cu
   - Operations & Supply Chain Management (**OSCM**)
   - Information Systems (**IS**)
 - **Target GPA Planner:** Interactive target forecaster calculates the average grade weight needed in all remaining semesters to hit your graduation CGPA goals.
+- **Results Image Export:** Preview, download, or share a high-resolution PNG of all entered results, a year, or a semester, with GPA and credit totals for the selected period. Include or hide your profile name and overall honours badge using accessible custom checkboxes. Images are generated locally on your device. Native image sharing is available on supported devices, with PNG download as a fallback.
 - **Executive Summary & Honors Tracking:** Live display of current Cumulative GPA, total completed credits, and real-time Honours standing forecasts.
 - **Interactive Recharts Telemetry:** Visualizes GPA progress across semesters with interactive, animated SVG trend charts.
 - **Onboarding Privacy Safeguard:** Standalone onboarding flow ensuring all student grade records are persisted locally inside the device's `localStorage` for 100% data privacy.

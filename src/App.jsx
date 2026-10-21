@@ -12,6 +12,7 @@ import ScrollTopButton from './components/ScrollTopButton';
 import DegreeAudit from './components/DegreeAudit';
 import GradingScale from './components/GradingScale';
 import ProfileMenu from './components/ProfileMenu';
+import ResultsExport from './components/ResultsExport';
 // Eagerly loaded to prevent flash during onboarding
 import SecurityModal from './components/SecurityModal';
 import WelcomeModal from './components/WelcomeModal';
@@ -203,6 +204,8 @@ export default function App() {
           onProfileClick={profiles.openMenu}
           triggerToast={triggerToast}
         />
+
+        <ResultsExport profile={profiles.activeProfile} />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Analytics & Planning Sidebar */}
