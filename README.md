@@ -1,6 +1,6 @@
 # 🏁 Kelaniya IT/MIT // GPA Dashboard
 
-[![Vite](https://img.shields.io/badge/Vite-v8.2.2-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+[![Vite](https://img.shields.io/badge/Vite-v8.3.4-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![React](https://img.shields.io/badge/React-v19.0.0-20232A?logo=react&logoColor=61DAFB)](https://react.dev)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind--v4.3.3-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Oxlint](https://img.shields.io/badge/Oxlint-verified-green?logo=lightning&logoColor=white)](https://oxc.rs)

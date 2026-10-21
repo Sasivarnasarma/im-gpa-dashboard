@@ -1,0 +1,5 @@
+# Patched versions for vulnerable transitive dependencies. Remove each override
+# once parent packages consistently resolve a safe version without it.
+overrides:
+  'undici@>=8.0.0 <8.10.2': '8.10.2'
+  'source-map-js@<1.2.2': '1.2.2'
