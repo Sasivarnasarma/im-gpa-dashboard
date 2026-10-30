@@ -12,6 +12,7 @@ export default function YearSection({
   specialization,
   onSelectPathway,
   onSelectSpecialization,
+  onMoveModule,
 }) {
   return (
     <div id={`year-${year.year}`} className="flex flex-col gap-4 scroll-mt-24">
@@ -55,7 +56,7 @@ export default function YearSection({
               </h3>
               <p className="text-[11px] text-muted-text max-w-md leading-relaxed">
                 Please select your B.Sc. (Hons) degree programme to load the corresponding Year 2
-                and Year 3 course curricula.
+                through Year 4 course curricula.
               </p>
               <div className="flex gap-4 mt-2 justify-center font-mono">
                 <button
@@ -79,19 +80,19 @@ export default function YearSection({
                 DEGREE PROGRAMME NOT SELECTED
               </h3>
               <p className="text-[11px] text-muted-text max-w-sm leading-relaxed">
-                Please select B.Sc. Hons in IT or MIT in the Second Year block to view the Third
-                Year course curriculum.
+                Please select B.Sc. Hons in IT or MIT in the Second Year block to view the Year{' '}
+                {year.year} course curriculum.
               </p>
             </div>
           )
-        ) : year.year === 3 && currentPathway === 'mit' && specialization === 'undecided' ? (
+        ) : year.year >= 3 && currentPathway === 'mit' && specialization === 'undecided' ? (
           <div className="border border-hairline bg-surface-soft p-8 text-center flex flex-col items-center gap-4 select-none">
             <Info className="w-8 h-8 text-m-blue-light" />
             <h3 className="font-bmw-display font-bold text-sm text-white uppercase tracking-wider">
-              YEAR 3 SPECIALIZATION NOT DECIDED
+              YEAR {year.year} SPECIALIZATION NOT DECIDED
             </h3>
             <p className="text-[11px] text-muted-text max-w-md leading-relaxed">
-              Please select your B.Sc. (Hons) in MIT Year 3 specialization to load the corresponding
+              Please select your B.Sc. (Hons) in MIT specialization to load the corresponding
               compulsory and optional courses.
             </p>
             <div className="flex gap-3 mt-2 flex-wrap justify-center font-mono">
@@ -127,6 +128,8 @@ export default function YearSection({
             onGradeChange={onGradeChange}
             getGradeBorderClass={getGradeBorderClass}
             bulletColor="bg-m-blue-light"
+            year={year.year}
+            onMoveModule={currentPathway === 'mit' ? onMoveModule : undefined}
           />
           <SemesterCard
             semLabel="Semester 02"
@@ -136,6 +139,8 @@ export default function YearSection({
             onGradeChange={onGradeChange}
             getGradeBorderClass={getGradeBorderClass}
             bulletColor="bg-m-red"
+            year={year.year}
+            onMoveModule={currentPathway === 'mit' ? onMoveModule : undefined}
           />
         </div>
       )}

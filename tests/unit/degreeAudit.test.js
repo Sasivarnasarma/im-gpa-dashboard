@@ -8,7 +8,8 @@ import {
 import { modules, gradeMap } from '../../src/data/modules';
 import { getActiveModules, computeGpaStats, getGpaTier, GPA_TIER } from '../../src/lib/gpaEngine';
 
-const active = getActiveModules(modules, 'it', 'undecided');
+// Preserve coverage of the three-year exit-degree rules separately from honours.
+const active = getActiveModules(modules, 'it', 'undecided').filter((m) => m.y <= 3);
 const gpaModules = active.filter((m) => !m.nonGpa && m.cr > 0);
 
 // Grades every GPA-bearing course, then applies the given overrides.
@@ -181,5 +182,35 @@ describe('resolveAwardTier — the badge shows the class actually on offer', () 
     const classes = assessClasses(active, grades, gradeMap, cgpaOf(grades));
     expect(classes.classes.every((c) => c.blocked)).toBe(true);
     expect(resolveAwardTier(GPA_TIER.FIRST, classes)).toBe(GPA_TIER.PASS);
+  });
+});
+
+describe('four-year honours audit', () => {
+  it.each([
+    ['it', 'undecided', 'INTE 43216'],
+    ['mit', 'bse', 'MGTE 43216'],
+    ['mit', 'is', 'INTE 43216'],
+  ])('uses 132 / 105 / 117 credit thresholds for %s %s', (pathway, spec, research) => {
+    const active = getActiveModules(modules, pathway, spec);
+    const grades = Object.fromEntries(
+      active.map((m) => [m.code, m.gradeType === 'passfail' ? 'Pass' : 'A'])
+    );
+    const stats = computeGpaStats(active, grades, gradeMap);
+    const audit = assessEligibility(active, grades, gradeMap, stats.cgpa);
+    expect(audit.eligible).toBe(true);
+    expect(audit.criteria.find((c) => c.id === 'total-credits').target).toBe(132);
+    expect(audit.criteria.find((c) => c.id === 'credits-at-c').target).toBe(105);
+    expect(audit.criteria.find((c) => c.id === 'year4-credits').target).toBe(30);
+    expect(audit.criteria.find((c) => c.id === 'year12-credits').current).toBe(
+      active.filter((m) => m.y <= 2 && !m.nonGpa).reduce((sum, m) => sum + m.cr, 0)
+    );
+    expect(audit.untrackable).toMatch(/six/);
+    const classes = assessClasses(active, grades, gradeMap, stats.cgpa);
+    expect(classes.classes[1].criteria.find((c) => c.id === 'upper-credits-at-c').target).toBe(117);
+    expect(
+      assessEligibility(active, { ...grades, [research]: 'D' }, gradeMap, 3.9).failed.map(
+        (c) => c.id
+      )
+    ).toContain(`c-or-better-${research}`);
   });
 });

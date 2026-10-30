@@ -32,6 +32,7 @@ import useProfiles from './hooks/useProfiles';
 import useAnnouncement from './hooks/useAnnouncement';
 
 import { tagPathway, trackEvent } from './lib/insights';
+import { modules } from './data/modules';
 
 // Root component: owns the profile, onboarding and GPA state, and lays out
 // the dashboard around them.
@@ -137,6 +138,22 @@ export default function App() {
     trackEvent('grade_updated');
   };
 
+  const handleMoveModule = (code, semester) => {
+    const mod = modules.find((item) => item.code === code && item.flexibleSemester);
+    if (
+      !mod ||
+      ![1, 2].includes(semester) ||
+      !profiles.activeProfile ||
+      onboarding.pathway !== 'mit' ||
+      onboarding.specialization === 'undecided'
+    )
+      return;
+    profiles.updateActive({
+      moduleSemesters: { ...profiles.activeProfile.moduleSemesters, [code]: semester },
+    });
+    triggerToast(`${code} MOVED TO YEAR 4 SEMESTER ${semester}`);
+  };
+
   const handleNameSubmit = (name) => {
     profiles.addProfile(name);
     setAddingProfile(false);
@@ -176,7 +193,12 @@ export default function App() {
   };
 
   const { currentPathway, stats, trendData, semesters, years, eligibility, classes, awardTier } =
-    useGpaComputation(grades, onboarding.pathway, onboarding.specialization);
+    useGpaComputation(
+      grades,
+      onboarding.pathway,
+      onboarding.specialization,
+      profiles.activeProfile?.moduleSemesters
+    );
 
   return (
     <div className="min-h-screen bg-canvas text-body-text selection:bg-m-blue-light selection:text-white">
@@ -279,6 +301,7 @@ export default function App() {
                 specialization={onboarding.specialization}
                 onSelectPathway={onboarding.selectPathway}
                 onSelectSpecialization={onboarding.selectSpecializationDirect}
+                onMoveModule={handleMoveModule}
               />
             ))}
           </div>

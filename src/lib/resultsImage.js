@@ -1,6 +1,6 @@
 import { modules, gradeMap, GRADE_OPTIONS, PASSFAIL_OPTIONS } from '../data/modules';
 import { SPECIALIZATION_LABELS } from '../data/constants';
-import { getActiveModules, computeGpaStats, getGpaTier, GPA_TIER } from './gpaEngine';
+import { getActiveModules, computeGpaStats, getGpaTier, GPA_TIER, sortModules } from './gpaEngine';
 import { assessClasses, resolveAwardTier } from './degreeAudit';
 
 // Export only the selected curriculum and actual, valid entered results.
@@ -9,10 +9,13 @@ export function buildResultsReport(profile, date = new Date()) {
   const selected = getActiveModules(
     modules,
     profile.pathway,
-    profile.specialization ?? 'undecided'
+    profile.specialization ?? 'undecided',
+    profile.moduleSemesters
   );
-  const results = selected.filter((mod) =>
-    (mod.gradeType === 'passfail' ? PASSFAIL_OPTIONS : GRADE_OPTIONS).includes(grades[mod.code])
+  const results = sortModules(
+    selected.filter((mod) =>
+      (mod.gradeType === 'passfail' ? PASSFAIL_OPTIONS : GRADE_OPTIONS).includes(grades[mod.code])
+    )
   );
   const stats = computeGpaStats(results, grades, gradeMap);
   const validGrades = Object.fromEntries(results.map((mod) => [mod.code, grades[mod.code]]));
@@ -39,7 +42,7 @@ export function buildResultsReport(profile, date = new Date()) {
       },
     }[tier] ?? null;
   const semesters = [];
-  for (let year = 1; year <= 3; year++) {
+  for (let year = 1; year <= 4; year++) {
     for (let semester = 1; semester <= 2; semester++) {
       const rows = results
         .filter((mod) => mod.y === year && mod.s === semester)
@@ -161,7 +164,7 @@ function stripe(ctx, y) {
 }
 
 // Canvas avoids screenshotting the dashboard, external images, and font downloads.
-// A 1.5x backing bitmap keeps the PNG sharp while bounding full-curriculum size.
+// Prefer 1.5x resolution; cap bitmap memory for long four-year transcripts.
 export async function renderResultsImage(report, includeName = true) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -184,9 +187,10 @@ export async function renderResultsImage(report, includeName = true) {
     return { ...semester, top, rows };
   });
   const height = cursor + 236;
-  canvas.width = WIDTH * 1.5;
-  canvas.height = Math.ceil(height * 1.5);
-  ctx.scale(1.5, 1.5);
+  const scale = Math.min(1.5, Math.sqrt(15_000_000 / (WIDTH * height)), 16000 / height);
+  canvas.width = Math.floor(WIDTH * scale);
+  canvas.height = Math.floor(height * scale);
+  ctx.scale(scale, scale);
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#f4f6f8';
   ctx.fillRect(0, 0, WIDTH, height);
@@ -292,6 +296,16 @@ export async function renderResultsImage(report, includeName = true) {
       if (row.nonGpa) {
         text(ctx, 'NON-GPA', 250, row.top + row.height - 22, 12, MUTED, true);
       }
+      if (row.spansSemesters)
+        text(
+          ctx,
+          'SEMESTERS 1 & 2 · COUNTED ONCE',
+          250,
+          row.top + row.height - 22,
+          12,
+          MUTED,
+          true
+        );
       text(ctx, row.cr, 867, row.top + 23, 21, MUTED, false, 'center');
       const points = gradeMap[row.grade];
       const gradeColor =

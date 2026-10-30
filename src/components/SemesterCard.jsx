@@ -10,6 +10,8 @@ export default function SemesterCard({
   onGradeChange,
   getGradeBorderClass,
   bulletColor,
+  year,
+  onMoveModule,
 }) {
   return (
     <div
@@ -26,6 +28,12 @@ export default function SemesterCard({
         </div>
 
         {/* Modules List */}
+        {year === 4 && (
+          <p className="px-4 py-3 text-[10px] text-muted-text border-b border-hairline">
+            Research Project covers both semesters and is counted once.
+            {onMoveModule && ' Choose a semester for flexible modules using the dropdown.'}
+          </p>
+        )}
         <div className="divide-y divide-hairline">
           {modules.map((mod) => (
             <div key={mod.code} className="p-4 flex items-center justify-between gap-4">
@@ -48,7 +56,21 @@ export default function SemesterCard({
                 <span className="text-[9px] text-muted-text mt-0.5 block font-mono">
                   {mod.cr === 0 ? 'NON-CREDIT' : `${mod.cr} CREDITS`}
                   {mod.nonGpa && ' • NON-GPA'}
+                  {mod.spansSemesters && ' • SEMESTERS 1 & 2 • COUNTED ONCE'}
                 </span>
+                {mod.flexibleSemester && onMoveModule && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <select
+                      aria-label={`Semester for ${mod.code}`}
+                      value={mod.s}
+                      onChange={(event) => onMoveModule(mod.code, Number(event.target.value))}
+                      className="bg-canvas text-white border border-hairline px-2 py-1 text-[10px] focus:border-m-blue-light"
+                    >
+                      <option value={1}>Semester 01</option>
+                      <option value={2}>Semester 02</option>
+                    </select>
+                  </div>
+                )}
               </div>
 
               {/* Grade Selector */}

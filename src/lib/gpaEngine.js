@@ -1,8 +1,23 @@
 // Pure GPA calculation engine for curriculum tracking and analytics.
 
-// Filters the curriculum to the student's pathway, marking Year 3 MIT
+// Stable ordering shared by dashboard semester cards and exported results.
+export function sortModules(moduleList) {
+  return [...moduleList].sort(
+    (a, b) =>
+      Number(Boolean(a.flexibleSemester)) - Number(Boolean(b.flexibleSemester)) ||
+      Number(Boolean(a.optional)) - Number(Boolean(b.optional)) ||
+      (!a.optional ? b.cr - a.cr : 0)
+  );
+}
+
+// Filters the curriculum to the student's pathway, marking Years 3–4 MIT
 // modules optional or compulsory by specialization.
-export function getActiveModules(modules, pathway, specialization) {
+export function getActiveModules(
+  modules,
+  pathway,
+  specialization = 'undecided',
+  moduleSemesters = {}
+) {
   const currentPathway = pathway || 'undecided';
 
   return modules
@@ -10,20 +25,24 @@ export function getActiveModules(modules, pathway, specialization) {
       if (currentPathway === 'undecided') {
         return m.y === 1;
       }
-      if (m.y === 3 && currentPathway === 'mit' && specialization === 'undecided') {
+      if (m.y >= 3 && currentPathway === 'mit' && specialization === 'undecided') {
         return false;
       }
+      if (currentPathway === 'mit' && m.specAvailable && !m.specAvailable.includes(specialization))
+        return false;
       return !m.pathway || m.pathway === 'both' || m.pathway === currentPathway;
     })
     .map((m) => {
-      if (m.y === 3 && currentPathway === 'mit' && specialization !== 'undecided') {
+      const semester = moduleSemesters?.[m.code];
+      const placed = m.flexibleSemester && [1, 2].includes(semester) ? { ...m, s: semester } : m;
+      if (m.y >= 3 && currentPathway === 'mit' && specialization !== 'undecided') {
         const isCompulsory = m.specCompulsory?.includes(specialization);
         return {
-          ...m,
+          ...placed,
           optional: !isCompulsory,
         };
       }
-      return m;
+      return placed;
     });
 }
 
@@ -55,7 +74,12 @@ export function computeGpaStats(activeModules, grades, gradeMap) {
   let gradedOptionalCredits = 0;
   let totalCreditsCount = 0;
 
-  const yearStats = { 1: emptyYearStat(), 2: emptyYearStat(), 3: emptyYearStat() };
+  const yearStats = {
+    1: emptyYearStat(),
+    2: emptyYearStat(),
+    3: emptyYearStat(),
+    4: emptyYearStat(),
+  };
 
   activeModules.forEach((mod) => {
     const grade = grades[mod.code] || '';
@@ -115,6 +139,7 @@ export function computeGpaStats(activeModules, grades, gradeMap) {
   const y1GPA = yearStats[1].credits > 0 ? yearStats[1].points / yearStats[1].credits : 0;
   const y2GPA = yearStats[2].credits > 0 ? yearStats[2].points / yearStats[2].credits : 0;
   const y3GPA = yearStats[3].credits > 0 ? yearStats[3].points / yearStats[3].credits : 0;
+  const y4GPA = yearStats[4].credits > 0 ? yearStats[4].points / yearStats[4].credits : 0;
   const cgpa = totalGpaCredits > 0 ? totalWeightedPoints / totalGpaCredits : 0;
 
   return {
@@ -132,6 +157,7 @@ export function computeGpaStats(activeModules, grades, gradeMap) {
     y1GPA,
     y2GPA,
     y3GPA,
+    y4GPA,
     cgpa,
   };
 }
@@ -143,6 +169,8 @@ const SEMESTER_ORDER = [
   { label: 'Y2S2', y: 2, s: 2 },
   { label: 'Y3S1', y: 3, s: 1 },
   { label: 'Y3S2', y: 3, s: 2 },
+  { label: 'Y4S1', y: 4, s: 1 },
+  { label: 'Y4S2', y: 4, s: 2 },
 ];
 
 // GPA within each semester on its own, as opposed to the cumulative figure

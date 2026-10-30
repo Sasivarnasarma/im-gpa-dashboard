@@ -16,6 +16,7 @@ export function createProfile(name) {
     pathway: null,
     specialization: 'undecided',
     grades: {},
+    moduleSemesters: {},
     targetGpa: '3.70',
     createdAt: stamp,
     updatedAt: stamp,

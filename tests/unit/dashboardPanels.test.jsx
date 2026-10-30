@@ -1,5 +1,6 @@
+import useGpaComputation from '../../src/hooks/useGpaComputation';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DegreeAudit from '../../src/components/DegreeAudit';
 import TargetPlanner from '../../src/components/TargetPlanner';
@@ -151,5 +152,33 @@ describe('SystemCreatorModal', () => {
     await userEvent.click(screen.getByText(/system creator/i));
 
     expect(onClose).not.toHaveBeenCalled();
+  });
+});
+
+describe('semester module ordering', () => {
+  it('keeps compulsory modules first in both semester cards for every pathway', () => {
+    for (const [pathway, spec] of [
+      ['it', 'undecided'],
+      ['mit', 'bse'],
+      ['mit', 'oscm'],
+      ['mit', 'is'],
+    ]) {
+      const { result, unmount } = renderHook(() =>
+        useGpaComputation({}, pathway, spec, { 'MGTE 44273': 2 })
+      );
+      const fourth = result.current.years[3];
+      expect(fourth.name).toBe('Fourth Year');
+      for (const rows of [fourth.sem1, fourth.sem2]) {
+        const firstFlexible = rows.findIndex((m) => m.flexibleSemester);
+        if (firstFlexible >= 0)
+          expect(rows.slice(firstFlexible).every((m) => m.flexibleSemester)).toBe(true);
+        const requiredCredits = rows.filter((m) => !m.optional).map((m) => m.cr);
+        expect(requiredCredits).toEqual([...requiredCredits].sort((a, b) => b - a));
+        const firstOptional = rows.findIndex((m) => m.optional);
+        if (firstOptional >= 0)
+          expect(rows.slice(firstOptional).every((m) => m.optional)).toBe(true);
+      }
+      unmount();
+    }
   });
 });

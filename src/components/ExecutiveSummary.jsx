@@ -128,7 +128,7 @@ export default function ExecutiveSummary({
         <span className="font-bmw-display font-bold text-[11px] uppercase tracking-widest text-white border-b border-hairline pb-2.5">
           YEAR BREAKDOWN
         </span>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {years.map((year) => (
             <YearGpaTile
               key={year.label}

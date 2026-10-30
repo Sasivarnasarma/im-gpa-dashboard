@@ -46,7 +46,7 @@ describe('validateModules', () => {
   });
 
   it('flags an out-of-range year or semester', () => {
-    const problems = validateModules([{ ...valid(), y: 4, s: 3 }]);
+    const problems = validateModules([{ ...valid(), y: 5, s: 3 }]);
     expect(problems.join('\n')).toMatch(/"y" must be one of/i);
     expect(problems.join('\n')).toMatch(/"s" must be one of/i);
   });
@@ -115,5 +115,15 @@ describe('validateModules', () => {
       'A+': 4.0,
     });
     expect(problems).toEqual([]);
+  });
+});
+
+describe('semester metadata', () => {
+  it('requires boolean flags for flexible and spanning modules', () => {
+    expect(
+      validateModules([
+        { code: 'X', name: 'X', y: 4, s: 1, cr: 3, flexibleSemester: 'yes', spansSemesters: 'yes' },
+      ]).join(' ')
+    ).toMatch(/flexibleSemester.*boolean.*spansSemesters.*boolean/);
   });
 });

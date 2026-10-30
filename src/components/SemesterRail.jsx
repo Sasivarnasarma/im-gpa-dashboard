@@ -24,7 +24,7 @@ export default function SemesterRail({ semesters, onJump }) {
         Semester GPA
       </span>
 
-      <ul className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+      <ul className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {semesters.map((sem) => (
           <li key={sem.label}>
             <button

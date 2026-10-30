@@ -6,7 +6,7 @@ import {
   GPA_TIER,
 } from './gpaEngine';
 
-// Degree eligibility and honours classification engine for BSc (IT/MIT) exit degrees.
+// Degree eligibility and classification for three-year exits and four-year honours.
 // Criteria project into three states: 'met', 'pending', and 'failed'.
 export const STATUS = { MET: 'met', PENDING: 'pending', FAILED: 'failed' };
 
@@ -26,6 +26,16 @@ const EXIT_DEGREE_RULES = {
   // Second Class (either division) needs this many credits at C or better.
   classCreditsAtC: 99,
 };
+
+const HONOURS_DEGREE_RULES = {
+  ...EXIT_DEGREE_RULES,
+  minTotalCredits: 132,
+  minCreditsAtC: 105,
+  classCreditsAtC: 117,
+  requireCOrBetter: [...EXIT_DEGREE_RULES.requireCOrBetter, 'INTE 43216', 'MGTE 43216'],
+};
+const rulesFor = (activeModules) =>
+  activeModules.some((m) => m.y === 4) ? HONOURS_DEGREE_RULES : EXIT_DEGREE_RULES;
 
 const isGraded = (grades, code) => (grades[code] ?? '') !== '';
 
@@ -48,6 +58,7 @@ function summarise(activeModules, grades, gradeMap) {
   let ungradedGpaCredits = 0;
   let year12Credits = 0; // Y1+Y2, graded D or better
   let year3Credits = 0; // Y3, graded D or better
+  let year4Credits = 0;
 
   const belowC = []; // graded GPA courses under C
   const belowD = []; // graded GPA courses under D
@@ -67,6 +78,7 @@ function summarise(activeModules, grades, gradeMap) {
     if (points >= POINTS.D) {
       creditsAtD += mod.cr;
       if (mod.y === 3) year3Credits += mod.cr;
+      else if (mod.y === 4) year4Credits += mod.cr;
       else year12Credits += mod.cr;
     } else {
       belowD.push(mod);
@@ -90,8 +102,10 @@ function summarise(activeModules, grades, gradeMap) {
     ungradedGpaCredits,
     year12Credits,
     year3Credits,
-    ungradedYear12: ungradedBy((m) => m.y !== 3),
+    year4Credits,
+    ungradedYear12: ungradedBy((m) => m.y <= 2),
     ungradedYear3: ungradedBy((m) => m.y === 3),
+    ungradedYear4: ungradedBy((m) => m.y === 4),
     belowC,
     belowD,
     curriculumGpaCredits: gpaModules.reduce((total, m) => total + m.cr, 0),
@@ -99,11 +113,11 @@ function summarise(activeModules, grades, gradeMap) {
 }
 
 // Named-course requirements: a specific course at a specific standard.
-function namedCourseCriteria(activeModules, grades, gradeMap) {
+function namedCourseCriteria(activeModules, grades, gradeMap, rules) {
   const byCode = new Map(activeModules.map((m) => [m.code, m]));
   const criteria = [];
 
-  EXIT_DEGREE_RULES.requireCOrBetter.forEach((code) => {
+  rules.requireCOrBetter.forEach((code) => {
     const mod = byCode.get(code);
     if (!mod) return; // not in this pathway's curriculum
     const grade = grades[code] ?? '';
@@ -117,7 +131,7 @@ function namedCourseCriteria(activeModules, grades, gradeMap) {
     });
   });
 
-  EXIT_DEGREE_RULES.requirePass.forEach((code) => {
+  rules.requirePass.forEach((code) => {
     const mod = byCode.get(code);
     if (!mod) return;
     const grade = grades[code] ?? '';
@@ -136,7 +150,8 @@ function namedCourseCriteria(activeModules, grades, gradeMap) {
 // Assesses overall degree eligibility criteria (credit floors, minimum GPA, named courses)
 export function assessEligibility(activeModules, grades, gradeMap, cgpa) {
   const s = summarise(activeModules, grades, gradeMap);
-  const R = EXIT_DEGREE_RULES;
+  const R = rulesFor(activeModules);
+  const isHonours = R === HONOURS_DEGREE_RULES;
 
   const criteria = [
     {
@@ -153,9 +168,20 @@ export function assessEligibility(activeModules, grades, gradeMap, cgpa) {
       current: s.year3Credits,
       target: R.minYear3Credits,
     },
+    ...(isHonours
+      ? [
+          {
+            id: 'year4-credits',
+            label: '30 credits from Year 4 at D or better',
+            status: thresholdStatus(s.year4Credits, 30, s.ungradedYear4),
+            current: s.year4Credits,
+            target: 30,
+          },
+        ]
+      : []),
     {
       id: 'total-credits',
-      label: `${R.minTotalCredits} credits across all three years`,
+      label: `${R.minTotalCredits} credits across all ${isHonours ? 'four' : 'three'} years`,
       status: thresholdStatus(s.creditsAtD, R.minTotalCredits, s.ungradedGpaCredits),
       current: s.creditsAtD,
       target: R.minTotalCredits,
@@ -167,7 +193,7 @@ export function assessEligibility(activeModules, grades, gradeMap, cgpa) {
       current: s.creditsAtC,
       target: R.minCreditsAtC,
     },
-    ...namedCourseCriteria(activeModules, grades, gradeMap),
+    ...namedCourseCriteria(activeModules, grades, gradeMap, R),
     {
       id: 'min-gpa',
       label: `Cumulative GPA of ${R.minGpa.toFixed(2)} or above`,
@@ -191,16 +217,15 @@ export function assessEligibility(activeModules, grades, gradeMap, cgpa) {
     criteria,
     failed: criteria.filter((c) => c.status === STATUS.FAILED),
     eligible: criteria.every((c) => c.status === STATUS.MET),
-    // The handbook also caps the degree at five consecutive academic years.
-    // The app holds no enrolment dates, so that one cannot be assessed here.
-    untrackable: 'Completion within five consecutive academic years',
+    // The app holds no enrolment dates, so time limits cannot be assessed here.
+    untrackable: `Completion within ${isHonours ? 'six' : 'five'} consecutive academic years`,
   };
 }
 
 // Assesses honours classifications across First Class, Second Upper, and Second Lower
 export function assessClasses(activeModules, grades, gradeMap, cgpa) {
   const s = summarise(activeModules, grades, gradeMap);
-  const R = EXIT_DEGREE_RULES;
+  const R = rulesFor(activeModules);
   const halfCredits = s.curriculumGpaCredits / 2;
 
   const allAtLeastC =

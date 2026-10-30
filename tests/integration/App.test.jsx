@@ -72,6 +72,55 @@ describe('App — announcements', () => {
   });
 });
 
+describe('App — fourth year and semester placement', () => {
+  beforeEach(() => localStorage.clear());
+
+  const seedMit = () => {
+    skipOnboarding({ pathway: 'mit', grades: { 'MGTE 44273': 'B+', 'MGTE 43216': 'A' } });
+    const container = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROFILES));
+    container.profiles[0].specialization = 'bse';
+    localStorage.setItem(STORAGE_KEYS.PROFILES, JSON.stringify(container));
+  };
+
+  it('persists a flexible module move across reload without losing its grade', async () => {
+    seedMit();
+    const first = render(<App />);
+    const destination = document.getElementById('sem-4-2');
+    expect(screen.getByRole('heading', { name: 'Fourth Year' })).toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByLabelText('Semester for MGTE 44273'), '2');
+    expect(within(destination).getByLabelText('Semester for MGTE 44273')).toHaveValue('2');
+    expect(within(destination).getByLabelText(/Grade for MGTE 44273/)).toHaveValue('B+');
+    expect(screen.getByRole('status')).toHaveTextContent('MGTE 44273 MOVED TO YEAR 4 SEMESTER 2');
+    await waitFor(() =>
+      expect(
+        JSON.parse(localStorage.getItem(STORAGE_KEYS.PROFILES)).profiles[0].moduleSemesters
+      ).toEqual({ 'MGTE 44273': 2 })
+    );
+    first.unmount();
+    render(<App />);
+    expect(
+      within(document.getElementById('sem-4-2')).getByLabelText('Semester for MGTE 44273')
+    ).toHaveValue('2');
+    expect(screen.getByLabelText(/Grade for MGTE 44273/)).toHaveValue('B+');
+  });
+
+  it('moves a flexible module using its dropdown and keeps fixed-semester modules in place', async () => {
+    seedMit();
+    render(<App />);
+    await userEvent.selectOptions(screen.getByLabelText('Semester for INTE 44303'), '1');
+    expect(
+      within(document.getElementById('sem-4-1')).getByLabelText('Semester for INTE 44303')
+    ).toHaveValue('1');
+    expect(screen.queryByLabelText('Semester for MGTE 41323')).not.toBeInTheDocument();
+    expect(
+      within(document.getElementById('sem-4-1')).getByLabelText(/Grade for MGTE 41323/)
+    ).toBeInTheDocument();
+    expect(
+      JSON.parse(localStorage.getItem(STORAGE_KEYS.PROFILES)).profiles[0].moduleSemesters
+    ).toEqual({ 'INTE 44303': 1 });
+  });
+});
+
 describe('App — Target GPA Planner wiring', () => {
   beforeEach(() => {
     localStorage.clear();

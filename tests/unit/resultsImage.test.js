@@ -37,7 +37,7 @@ describe('results report', () => {
       ['YEAR 1 / SEMESTER 1', '2.00'],
       ['YEAR 1 / SEMESTER 2', '3.30'],
     ]);
-    expect(report.semesters[0].rows.map((r) => r.grade)).toEqual(['A', 'E', 'B', 'Fail']);
+    expect(report.semesters[0].rows.map((r) => r.grade)).toEqual(['A', 'E', 'Fail', 'B']);
   });
 
   it('handles empty, undecided, and non-GPA-only profiles without inventing a GPA', () => {
@@ -150,7 +150,8 @@ function mockCanvas({ noContext = false, noBlob = false } = {}) {
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(noContext ? null : context);
   vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (callback, type) {
     expect(type).toBe('image/png');
-    expect(this.width).toBe(1620);
+    expect(this.width).toBeLessThanOrEqual(1620);
+    expect(this.width * this.height).toBeLessThanOrEqual(15_000_000);
     callback(noBlob ? null : new Blob(['png'], { type }));
   });
   return context;
@@ -175,7 +176,7 @@ describe('PNG rendering', () => {
     expect(drawn).toContain('Pass');
     expect(drawn.join(' ')).toContain('Not an official academic transcript');
     expect(drawn).toContain('SEMESTER GPA  4.00');
-    expect(context.scale).toHaveBeenCalledWith(1.5, 1.5);
+    expect(context.scale).toHaveBeenCalledWith(expect.any(Number), expect.any(Number));
   });
 
   it('omits the name from image pixels when requested', async () => {
@@ -187,6 +188,7 @@ describe('PNG rendering', () => {
     expect(drawn).toContain('Made with ♥ by Sasivarnasarma');
     expect(drawn).toContain('♥');
     expect(drawn).toContain('gpa.sasivarnasarma.me');
+    expect(context.scale).toHaveBeenCalledWith(1.5, 1.5);
   });
 
   it('renders the honours badge as current standing', async () => {
@@ -219,5 +221,35 @@ describe('PNG rendering', () => {
     await expect(renderResultsImage(buildResultsReport(profile))).rejects.toThrow(
       'Could not create'
     );
+  });
+});
+
+describe('fourth-year results', () => {
+  it('exports Year 4 and moved semester results without duplicating research', () => {
+    const report = buildResultsReport({
+      name: 'Student',
+      pathway: 'mit',
+      specialization: 'bse',
+      moduleSemesters: { 'MGTE 44273': 2 },
+      grades: { 'MGTE 43216': 'A', 'MGTE 44273': 'C', 'INTE 43216': 'E' },
+    });
+    const year = selectResultsReport(report, 'year-4');
+    expect(year.resultCount).toBe(2);
+    expect(year.gpaCredits).toBe(9);
+    expect(year.gpa).toBe('3.33');
+    const semester = selectResultsReport(report, 'semester-4-2');
+    expect(semester.resultCount).toBe(1);
+    expect(semester.semesters[0].rows[0].code).toBe('MGTE 44273');
+  });
+
+  it('exports compulsory courses ahead of moved optional courses in the same semester', () => {
+    const report = buildResultsReport({
+      name: 'Student',
+      pathway: 'mit',
+      specialization: 'bse',
+      moduleSemesters: { 'MGTE 44273': 2 },
+      grades: { 'MGTE 44273': 'A', 'MGTE 42213': 'A' },
+    });
+    expect(report.semesters[0].rows.map((row) => row.code)).toEqual(['MGTE 42213', 'MGTE 44273']);
   });
 });

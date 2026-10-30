@@ -1,3 +1,6 @@
+import SemesterCard from '../../src/components/SemesterCard';
+import { getActiveModules, getGradeBorderClass } from '../../src/lib/gpaEngine';
+import { modules } from '../../src/data/modules';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -190,5 +193,32 @@ describe('WelcomeModal — the remaining choices', () => {
     await userEvent.click(screen.getByRole('button', { name: /back/i }));
 
     expect(setModalStep).toHaveBeenCalledWith(1);
+  });
+});
+
+describe('flexible semester controls', () => {
+  const props = {
+    semLabel: 'Semester 02',
+    semId: 'sem-4-2',
+    year: 4,
+    grades: {},
+    onGradeChange: vi.fn(),
+    getGradeBorderClass,
+    bulletColor: 'bg-m-red',
+  };
+
+  it('offers keyboard/touch moves only for flexible courses', async () => {
+    const move = vi.fn();
+    render(
+      <SemesterCard
+        {...props}
+        modules={getActiveModules(modules, 'mit', 'bse').filter((m) => m.y === 4)}
+        onMoveModule={move}
+      />
+    );
+    expect(screen.getAllByRole('combobox', { name: /^Semester for/ })).toHaveLength(2);
+    await userEvent.selectOptions(screen.getByLabelText('Semester for MGTE 44273'), '2');
+    expect(move).toHaveBeenCalledWith('MGTE 44273', 2);
+    expect(screen.queryByLabelText('Semester for MGTE 43216')).not.toBeInTheDocument();
   });
 });

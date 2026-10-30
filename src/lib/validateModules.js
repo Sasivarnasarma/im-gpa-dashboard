@@ -3,7 +3,7 @@
 const VALID_PATHWAYS = ['it', 'mit', 'both'];
 const VALID_SPECIALIZATIONS = ['bse', 'oscm', 'is'];
 const VALID_GRADE_TYPES = ['passfail'];
-const VALID_YEARS = [1, 2, 3];
+const VALID_YEARS = [1, 2, 3, 4];
 const VALID_SEMESTERS = [1, 2];
 
 // Checks the curriculum for problems the app cannot detect at runtime.
@@ -69,7 +69,7 @@ export function validateModules(modules, gradeMap) {
     }
 
     // Specialization groups
-    ['specCompulsory', 'specOptional'].forEach((key) => {
+    ['specCompulsory', 'specOptional', 'specAvailable'].forEach((key) => {
       const value = m[key];
       if (value === undefined) return;
 
@@ -102,10 +102,10 @@ export function validateModules(modules, gradeMap) {
     }
 
     // A course in neither group silently becomes optional for every spec.
-    const isMitYear3 = m.y === 3 && (m.pathway === 'mit' || m.pathway === 'both');
+    const isMitYear3 = m.y >= 3 && (m.pathway === 'mit' || m.pathway === 'both');
     if (isMitYear3 && !m.specCompulsory && !m.specOptional) {
       problems.push(
-        `${label}: Year 3 ${m.pathway} course has neither "specCompulsory" nor "specOptional" — ` +
+        `${label}: Year ${m.y} ${m.pathway} course has neither "specCompulsory" nor "specOptional" — ` +
           `it will be treated as optional for every MIT specialization`
       );
     }
@@ -115,15 +115,19 @@ export function validateModules(modules, gradeMap) {
     if (isMitYear3 && (m.specCompulsory || m.specOptional)) {
       const compulsory = m.specCompulsory ?? [];
       const optional = m.specOptional ?? [];
-      const unclassified = VALID_SPECIALIZATIONS.filter(
-        (s) => !compulsory.includes(s) && !optional.includes(s)
-      );
+      const unclassified = (
+        Array.isArray(m.specAvailable) ? m.specAvailable : VALID_SPECIALIZATIONS
+      ).filter((s) => !compulsory.includes(s) && !optional.includes(s));
       if (unclassified.length > 0) {
         problems.push(
           `${label}: ${unclassified.join(', ')} appear in neither "specCompulsory" nor ` +
             `"specOptional" — the course defaults to an elective for them, which may be unintended`
         );
       }
+    }
+    for (const key of ['flexibleSemester', 'spansSemesters']) {
+      if (m[key] !== undefined && typeof m[key] !== 'boolean')
+        problems.push(`${label}: "${key}" must be a boolean`);
     }
   });
 

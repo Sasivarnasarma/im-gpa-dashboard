@@ -22,6 +22,15 @@ const withTwo = () => {
 };
 
 describe('profile store', () => {
+  it('keeps semester placements isolated by profile and preserves them through storage', () => {
+    let c = addProfile(EMPTY_CONTAINER, 'First');
+    const first = c.activeId;
+    c = updateActive(c, { moduleSemesters: { 'MGTE 44273': 2 } });
+    c = addProfile(c, 'Second');
+    expect(getActiveProfile(c).moduleSemesters).toEqual({});
+    c = switchProfile(parseContainer(JSON.stringify(c)), first);
+    expect(getActiveProfile(c).moduleSemesters).toEqual({ 'MGTE 44273': 2 });
+  });
   it('starts empty so a first-time user is asked for a name', () => {
     expect(EMPTY_CONTAINER.profiles).toHaveLength(0);
     expect(getActiveProfile(EMPTY_CONTAINER)).toBeNull();

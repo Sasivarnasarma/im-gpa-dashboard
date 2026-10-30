@@ -196,7 +196,7 @@ function ExportPreview({ report: fullReport, onClose }) {
               ? 'Honours reflects your overall standing. GPA and results reflect the selected period.'
               : 'An honours badge is available when your overall standing is First or Second Class.'}
           </p>
-          <span className="text-muted-text">PNG · 1620 px wide · Generated on your device</span>
+          <span className="text-muted-text">PNG · High resolution · Generated on your device</span>
         </div>
         <div
           className="overflow-y-auto min-h-32 flex-1 bg-canvas p-3 sm:p-5"

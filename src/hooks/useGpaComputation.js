@@ -6,38 +6,26 @@ import {
   computeTrendData,
   computeSemesterStats,
   isAtRiskGpa,
+  sortModules,
 } from '../lib/gpaEngine';
 import { assessEligibility, assessClasses, resolveAwardTier } from '../lib/degreeAudit';
 import { getGpaTier } from '../lib/gpaEngine';
 
-// Sort order: common compulsory -> pathway-specific -> non-GPA -> optional
-const sortModules = (moduleList) => {
-  return [...moduleList].sort((a, b) => {
-    const getWeight = (m) => {
-      if (m.optional) return 4;
-      if (m.nonGpa) return 3;
-      if (!m.pathway || m.pathway === 'both') return 1; // common
-      return 2; // specific (it or mit)
-    };
-    return getWeight(a) - getWeight(b);
-  });
-};
-
-const YEAR_NAMES = { 1: 'First Year', 2: 'Second Year', 3: 'Third Year' };
+const YEAR_NAMES = { 1: 'First Year', 2: 'Second Year', 3: 'Third Year', 4: 'Fourth Year' };
 
 // Computes cumulative/per-year GPA stats, performance trends, and year view-models
-export default function useGpaComputation(grades, pathway, specialization) {
+export default function useGpaComputation(grades, pathway, specialization, moduleSemesters) {
   return useMemo(() => {
-    const activeModules = getActiveModules(modules, pathway, specialization);
+    const activeModules = getActiveModules(modules, pathway, specialization, moduleSemesters);
     const stats = computeGpaStats(activeModules, grades, gradeMap);
     const trendData = computeTrendData(activeModules, grades, gradeMap);
     const semesters = computeSemesterStats(activeModules, grades, gradeMap);
     const classes = assessClasses(activeModules, grades, gradeMap, stats.cgpa);
 
-    const years = [1, 2, 3].map((year) => {
+    const years = [1, 2, 3, 4].map((year) => {
       const yearModules = activeModules.filter((m) => m.y === year);
       const yStats = stats.yearStats[year];
-      const gpa = year === 1 ? stats.y1GPA : year === 2 ? stats.y2GPA : stats.y3GPA;
+      const gpa = yStats.credits > 0 ? yStats.points / yStats.credits : 0;
       const hasGrades = yStats.credits > 0;
 
       return {
@@ -67,5 +55,5 @@ export default function useGpaComputation(grades, pathway, specialization) {
       // Resolves actual honours award tier factoring in handbook constraints
       awardTier: resolveAwardTier(getGpaTier(stats.cgpa, stats.totalGpaCredits > 0), classes),
     };
-  }, [grades, pathway, specialization]);
+  }, [grades, pathway, specialization, moduleSemesters]);
 }
