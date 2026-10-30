@@ -65,8 +65,9 @@ describe('assessClasses — First Class needs more than the GPA threshold', () =
     expect(result.highestAchieved.tier).toBe('first');
   });
 
-  it('falls back to the best class still reachable once First is blocked', () => {
-    const grades = transcript('A+', { [gpaModules[0].code]: 'D' });
+  it('falls back to Second Upper for a D in an optional course', () => {
+    const optional = gpaModules.find((m) => m.optional);
+    const grades = transcript('A+', { [optional.code]: 'D' });
     const result = assessClasses(active, grades, gradeMap, cgpaOf(grades));
 
     expect(classFor(result, 'first').blocked).toBe(true);
@@ -146,8 +147,9 @@ describe('assessEligibility — the degree itself, separate from its class', () 
 });
 
 describe('resolveAwardTier — the badge shows the class actually on offer', () => {
-  it('demotes First Class to Second Upper when a course sits below C', () => {
-    const grades = transcript('A+', { [gpaModules[0].code]: 'D' });
+  it('demotes First Class to Second Upper when an optional course sits below C', () => {
+    const optional = gpaModules.find((m) => m.optional);
+    const grades = transcript('A+', { [optional.code]: 'D' });
     const cgpa = cgpaOf(grades);
     const classes = assessClasses(active, grades, gradeMap, cgpa);
 
@@ -212,5 +214,163 @@ describe('four-year honours audit', () => {
         (c) => c.id
       )
     ).toContain(`c-or-better-${research}`);
+  });
+});
+
+describe('handbook audit safeguards', () => {
+  const honourModules = getActiveModules(modules, 'it', 'undecided');
+  const passing = Object.fromEntries(
+    honourModules.map((m) => [m.code, m.gradeType === 'passfail' ? 'Pass' : 'A'])
+  );
+  const assess = (overrides = {}, courseList = honourModules) => {
+    const grades = { ...passing, ...overrides };
+    const cgpa = computeGpaStats(courseList, grades, gradeMap).cgpa;
+    return {
+      eligibility: assessEligibility(courseList, grades, gradeMap, cgpa),
+      classes: assessClasses(courseList, grades, gradeMap, cgpa),
+    };
+  };
+
+  it('rejects a failed compulsory course even when optional credits satisfy all credit floors', () => {
+    const { eligibility, classes } = assess({ 'MGTE 41323': 'E' });
+    expect(criterion(eligibility, 'total-credits').status).toBe(STATUS.MET);
+    expect(criterion(eligibility, 'credits-at-c').status).toBe(STATUS.MET);
+    expect(criterion(eligibility, 'compulsory-at-d').offenders).toEqual([
+      expect.objectContaining({ code: 'MGTE 41323', grade: 'E' }),
+    ]);
+    expect(eligibility.eligible).toBe(false);
+    expect(classes.highestAchieved).toBeNull();
+    expect(classes.highestReachable).toBeNull();
+    expect(classes.boardConsiderations).toEqual([]);
+  });
+
+  it('requires a passing grade in every entered elective counted for GPA', () => {
+    const { eligibility } = assess({ 'INTE 41373': 'E' });
+    expect(criterion(eligibility, 'total-credits').status).toBe(STATUS.MET);
+    expect(criterion(eligibility, 'compulsory-at-d').status).toBe(STATUS.MET);
+    expect(criterion(eligibility, 'remaining-at-d').status).toBe(STATUS.FAILED);
+    expect(eligibility.eligible).toBe(false);
+  });
+
+  it.each(['D', 'D+', 'C-'])(
+    'requires compulsory C grades for a standard second class, with %s flagged only for Board consideration',
+    (grade) => {
+      const { eligibility, classes } = assess({ 'MGTE 41323': grade });
+      expect(eligibility.eligible).toBe(true);
+      for (const tier of ['upper', 'lower']) {
+        expect(criterion(classFor(classes, tier), `${tier}-compulsory-at-c`).status).toBe(
+          STATUS.FAILED
+        );
+        expect(classFor(classes, tier).achieved).toBe(false);
+      }
+      expect(classes.highestAchieved).toBeNull();
+      expect(classes.boardConsiderations).toEqual([
+        expect.objectContaining({ tier: 'upper', credits: 3 }),
+      ]);
+      expect(resolveAwardTier(GPA_TIER.FIRST, classes)).toBe(GPA_TIER.PASS);
+    }
+  );
+
+  it.each(['it', 'bse', 'oscm', 'is'])(
+    'ignores an untaken elective in %s when the remaining transcript meets the requirements',
+    (path) => {
+      const courseList = getActiveModules(
+        modules,
+        path === 'it' ? 'it' : 'mit',
+        path === 'it' ? 'undecided' : path
+      );
+      const grades = Object.fromEntries(
+        courseList.map((m) => [m.code, m.gradeType === 'passfail' ? 'Pass' : 'A'])
+      );
+      const elective = courseList.find((m) => m.optional);
+      delete grades[elective.code];
+      const stats = computeGpaStats(courseList, grades, gradeMap);
+      const eligibility = assessEligibility(courseList, grades, gradeMap, stats.cgpa);
+      const classes = assessClasses(courseList, grades, gradeMap, stats.cgpa);
+      expect(eligibility.eligible).toBe(true);
+      expect(classes.complete).toBe(true);
+      expect(classes.highestAchieved.tier).toBe('first');
+      expect(criterion(classFor(classes, 'first'), 'first-half-a').target).toBe(
+        stats.totalGpaCredits / 2
+      );
+      expect(criterion(classFor(classes, 'upper'), 'upper-half-b').target).toBe(
+        stats.totalGpaCredits / 2
+      );
+    }
+  );
+
+  it('keeps an ungraded compulsory course pending despite surplus optional credits', () => {
+    const { eligibility, classes } = assess({ 'MGTE 41323': '' });
+    expect(criterion(eligibility, 'total-credits').status).toBe(STATUS.MET);
+    expect(criterion(eligibility, 'compulsory-at-d').status).toBe(STATUS.PENDING);
+    expect(eligibility.eligible).toBe(false);
+    expect(classes.complete).toBe(false);
+    expect(classes.highestAchieved).toBeNull();
+    expect(classes.boardConsiderations).toEqual([]);
+  });
+
+  it.each(['', 'Fail'])(
+    'does not achieve a class when a required pass/fail course is %s',
+    (grade) => {
+      const { eligibility, classes } = assess({ 'GNCT 11212': grade });
+      expect(eligibility.eligible).toBe(false);
+      expect(classes.highestAchieved).toBeNull();
+      expect(classes.boardConsiderations).toEqual([]);
+    }
+  );
+
+  it('keeps credit requirements pending when no electives have been taken and compulsory credits are insufficient', () => {
+    const unselected = Object.fromEntries(
+      honourModules.filter((m) => m.optional).map((m) => [m.code, ''])
+    );
+    const { eligibility, classes } = assess(unselected);
+    expect(criterion(eligibility, 'total-credits').status).toBe(STATUS.PENDING);
+    expect(eligibility.eligible).toBe(false);
+    expect(classes.highestAchieved).toBeNull();
+    expect(classes.complete).toBe(false);
+  });
+
+  it('allows Board consideration at four compulsory credits but not at five', () => {
+    expect(assess({ 'PMAT 11212': 'C-', 'DELT 11232': 'D+' }).classes.boardConsiderations).toEqual([
+      expect.objectContaining({ tier: 'upper', credits: 4 }),
+    ]);
+    expect(assess({ 'PMAT 11212': 'C-', 'MGTE 41323': 'D+' }).classes.boardConsiderations).toEqual(
+      []
+    );
+  });
+
+  it('offers possible Lower Division consideration only when all other Upper Division requirements are met', () => {
+    const grades = Object.fromEntries(
+      honourModules.filter((m) => !m.nonGpa).map((m) => [m.code, 'B+'])
+    );
+    Object.assign(grades, {
+      'MGTE 41323': 'C-',
+      'INTE 11213': 'A',
+      'INTE 11223': 'A',
+      'MGTE 11243': 'A',
+    });
+    const { classes } = assess(grades);
+    expect(classes.highestAchieved).toBeNull();
+    expect(classes.boardConsiderations).toEqual([
+      expect.objectContaining({ tier: 'lower', credits: 3 }),
+    ]);
+    expect(
+      assess({ ...grades, 'INTE 11213': 'B+', 'INTE 11223': 'B+', 'MGTE 11243': 'B+' }).classes
+        .boardConsiderations
+    ).toEqual([]);
+  });
+
+  it('does not waive the named research or internship C requirements for Board consideration', () => {
+    expect(assess({ 'GNCT 32216': 'D' }).classes.boardConsiderations).toEqual([]);
+    expect(assess({ 'INTE 43216': 'D' }).classes.boardConsiderations).toEqual([]);
+  });
+
+  it('does not count low optional grades toward the four-credit compulsory exception', () => {
+    const { classes } = assess({ 'INTE 41373': 'D', 'MGTE 41323': 'D' });
+    expect(classes.boardConsiderations).toEqual([
+      expect.objectContaining({ tier: 'lower', credits: 3 }),
+    ]);
+    expect(classFor(classes, 'first').blocked).toBe(true);
+    expect(assess({ 'INTE 41373': 'D' }).classes.boardConsiderations).toEqual([]);
   });
 });

@@ -20,6 +20,25 @@ const auditFor = (grades) => {
 };
 
 describe('DegreeAudit', () => {
+  it('shows Board consideration separately from achieved classes', async () => {
+    const grades = Object.fromEntries(
+      active.map((m) => [m.code, m.gradeType === 'passfail' ? 'Pass' : 'A'])
+    );
+    grades['MGTE 41323'] = 'D';
+    const { eligibility, classes } = auditFor(grades);
+    render(<DegreeAudit eligibility={eligibility} classes={classes} />);
+    expect(screen.getByRole('button', { name: /degree audit/i })).toHaveTextContent(
+      'Board consideration possible'
+    );
+    await userEvent.click(screen.getByRole('button', { name: /degree audit/i }));
+    expect(
+      screen.getByText(/You may qualify for Board of Examiners consideration/)
+    ).toHaveTextContent('Second Class (Upper Division)');
+    expect(screen.getByText(/This is not an automatic award/)).toBeInTheDocument();
+    expect(screen.queryByText(/Highest class still open/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Blank optional modules are treated as not taken/)).toBeInTheDocument();
+  });
+
   it('stays collapsed until asked, showing only the headline', () => {
     const { eligibility, classes } = auditFor({});
     render(<DegreeAudit eligibility={eligibility} classes={classes} />);
@@ -71,8 +90,8 @@ describe('DegreeAudit', () => {
     render(<DegreeAudit eligibility={eligibility} classes={classes} />);
     await userEvent.click(screen.getByRole('button', { name: /degree audit/i }));
 
-    expect(screen.getByText(/ruled out/i)).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(gpaModules[0].code))).toBeInTheDocument();
+    expect(screen.getAllByText(/ruled out/i)).toHaveLength(3);
+    expect(screen.getAllByText(new RegExp(gpaModules[0].code)).length).toBeGreaterThan(0);
   });
 });
 

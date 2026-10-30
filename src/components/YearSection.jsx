@@ -127,7 +127,7 @@ export default function YearSection({
             grades={grades}
             onGradeChange={onGradeChange}
             getGradeBorderClass={getGradeBorderClass}
-            bulletColor="bg-m-blue-light"
+            bulletColor="bg-m-red"
             year={year.year}
             onMoveModule={currentPathway === 'mit' ? onMoveModule : undefined}
           />

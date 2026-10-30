@@ -74,6 +74,22 @@ describe('results report', () => {
 });
 
 describe('honours standing', () => {
+  it('does not export an honours badge when degree eligibility has failed', () => {
+    const active = getActiveModules(modules, 'it', 'undecided');
+    const grades = Object.fromEntries(
+      active.map((m) => [m.code, m.gradeType === 'passfail' ? 'Pass' : 'A'])
+    );
+    expect(buildResultsReport({ ...profile, grades }).honours).toMatchObject({
+      label: 'FIRST CLASS',
+    });
+    expect(
+      buildResultsReport({ ...profile, grades: { ...grades, 'GNCT 11212': 'Fail' } }).honours
+    ).toBeNull();
+    expect(
+      buildResultsReport({ ...profile, grades: { ...grades, 'MGTE 41323': 'D' } }).honours
+    ).toBeNull();
+  });
+
   it('includes First and Second Class standings and omits them for pass or empty results', () => {
     const reportFor = (grade) =>
       buildResultsReport({ ...profile, grades: { 'INTE 11213': grade } });

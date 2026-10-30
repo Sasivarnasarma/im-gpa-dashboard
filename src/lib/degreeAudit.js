@@ -48,7 +48,7 @@ function thresholdStatus(current, target, remaining) {
 
 // Splits the active curriculum into the figures both assessments need.
 function summarise(activeModules, grades, gradeMap) {
-  const gpaModules = activeModules.filter((m) => !m.nonGpa);
+  const gpaModules = activeModules.filter((m) => !m.nonGpa && m.cr > 0);
 
   let creditsAtC = 0; // graded C or better
   let creditsAtD = 0; // graded D or better
@@ -56,17 +56,18 @@ function summarise(activeModules, grades, gradeMap) {
   let creditsAtB = 0; // graded B or better
   let gradedGpaCredits = 0;
   let ungradedGpaCredits = 0;
+  let ungradedRequiredCredits = 0;
   let year12Credits = 0; // Y1+Y2, graded D or better
   let year3Credits = 0; // Y3, graded D or better
   let year4Credits = 0;
 
   const belowC = []; // graded GPA courses under C
-  const belowD = []; // graded GPA courses under D
 
   gpaModules.forEach((mod) => {
     const grade = grades[mod.code] ?? '';
     if (grade === '') {
       ungradedGpaCredits += mod.cr;
+      if (!mod.optional) ungradedRequiredCredits += mod.cr;
       return;
     }
     const points = gradeMap[grade] ?? 0;
@@ -80,8 +81,6 @@ function summarise(activeModules, grades, gradeMap) {
       if (mod.y === 3) year3Credits += mod.cr;
       else if (mod.y === 4) year4Credits += mod.cr;
       else year12Credits += mod.cr;
-    } else {
-      belowD.push(mod);
     }
     if (points < POINTS.C) belowC.push(mod);
   });
@@ -100,6 +99,7 @@ function summarise(activeModules, grades, gradeMap) {
     creditsAtD,
     gradedGpaCredits,
     ungradedGpaCredits,
+    ungradedRequiredCredits,
     year12Credits,
     year3Credits,
     year4Credits,
@@ -107,8 +107,23 @@ function summarise(activeModules, grades, gradeMap) {
     ungradedYear3: ungradedBy((m) => m.y === 3),
     ungradedYear4: ungradedBy((m) => m.y === 4),
     belowC,
-    belowD,
-    curriculumGpaCredits: gpaModules.reduce((total, m) => total + m.cr, 0),
+  };
+}
+
+// Blank electives are available choices, not outstanding transcript requirements.
+function courseStandard(id, label, courseList, grades, gradeMap, floor) {
+  const offenders = courseList.filter(
+    (m) => isGraded(grades, m.code) && (gradeMap[grades[m.code]] ?? 0) < floor
+  );
+  const outstanding = courseList.some((m) => !m.optional && !isGraded(grades, m.code));
+  return {
+    id,
+    label,
+    status: offenders.length ? STATUS.FAILED : outstanding ? STATUS.PENDING : STATUS.MET,
+    detail: offenders.length
+      ? `${offenders.length} course${offenders.length === 1 ? '' : 's'} below ${floor === POINTS.C ? 'C' : 'D'}`
+      : null,
+    offenders: offenders.map((m) => ({ code: m.code, name: m.name, grade: grades[m.code] })),
   };
 }
 
@@ -193,18 +208,34 @@ export function assessEligibility(activeModules, grades, gradeMap, cgpa) {
       current: s.creditsAtC,
       target: R.minCreditsAtC,
     },
+    courseStandard(
+      'compulsory-at-d',
+      'Grade D or better in every compulsory GPA course',
+      s.gpaModules.filter((m) => !m.optional),
+      grades,
+      gradeMap,
+      POINTS.D
+    ),
+    courseStandard(
+      'remaining-at-d',
+      'Grade D or better in every course counted for GPA',
+      s.gpaModules,
+      grades,
+      gradeMap,
+      POINTS.D
+    ),
     ...namedCourseCriteria(activeModules, grades, gradeMap, R),
     {
       id: 'min-gpa',
       label: `Cumulative GPA of ${R.minGpa.toFixed(2)} or above`,
-      // GPA can move in either direction while credits remain, so it is only
-      // final once everything is graded.
+      // Outstanding compulsory courses keep GPA provisional. Untaken electives
+      // do not prevent assessment of the current transcript.
       status:
         cgpa >= R.minGpa
-          ? s.ungradedGpaCredits === 0
+          ? s.ungradedRequiredCredits === 0
             ? STATUS.MET
             : STATUS.PENDING
-          : s.ungradedGpaCredits === 0
+          : s.ungradedRequiredCredits === 0
             ? STATUS.FAILED
             : STATUS.PENDING,
       current: cgpa,
@@ -226,20 +257,36 @@ export function assessEligibility(activeModules, grades, gradeMap, cgpa) {
 export function assessClasses(activeModules, grades, gradeMap, cgpa) {
   const s = summarise(activeModules, grades, gradeMap);
   const R = rulesFor(activeModules);
-  const halfCredits = s.curriculumGpaCredits / 2;
-
-  const allAtLeastC =
-    s.belowC.length > 0 ? STATUS.FAILED : s.ungradedGpaCredits > 0 ? STATUS.PENDING : STATUS.MET;
+  const eligibility = assessEligibility(activeModules, grades, gradeMap, cgpa);
+  const halfCredits = s.gradedGpaCredits / 2;
+  const compulsory = s.gpaModules.filter((m) => !m.optional);
+  const degreeCriterion = {
+    id: 'degree-eligibility',
+    label: 'Meet all degree eligibility requirements',
+    status: eligibility.failed.length
+      ? STATUS.FAILED
+      : eligibility.eligible
+        ? STATUS.MET
+        : STATUS.PENDING,
+  };
+  const halfCriterion = (id, label, credits) => ({
+    id,
+    label,
+    // Each additional A/B credit also increases the denominator by one credit.
+    status: thresholdStatus(credits * 2, s.gradedGpaCredits, s.ungradedGpaCredits),
+    current: credits,
+    target: halfCredits,
+  });
 
   const gpaCriterion = (threshold) => ({
     id: `gpa-${threshold}`,
     label: `Cumulative GPA of ${threshold.toFixed(2)} or above`,
     status:
       cgpa >= threshold
-        ? s.ungradedGpaCredits === 0
+        ? s.ungradedRequiredCredits === 0
           ? STATUS.MET
           : STATUS.PENDING
-        : s.ungradedGpaCredits === 0
+        : s.ungradedRequiredCredits === 0
           ? STATUS.FAILED
           : STATUS.PENDING,
     current: cgpa,
@@ -251,23 +298,20 @@ export function assessClasses(activeModules, grades, gradeMap, cgpa) {
     tier: 'first',
     label: 'First Class Honours',
     criteria: [
-      {
-        id: 'first-all-c',
-        label: 'Grade C or better in every course counted for GPA',
-        status: allAtLeastC,
-        detail:
-          s.belowC.length > 0
-            ? `${s.belowC.length} course${s.belowC.length > 1 ? 's' : ''} below C`
-            : null,
-        offenders: s.belowC.map((m) => ({ code: m.code, name: m.name, grade: grades[m.code] })),
-      },
-      {
-        id: 'first-half-a',
-        label: 'Grade A or better across at least half your credits',
-        status: thresholdStatus(s.creditsAtA, halfCredits, s.ungradedGpaCredits),
-        current: s.creditsAtA,
-        target: halfCredits,
-      },
+      degreeCriterion,
+      courseStandard(
+        'first-all-c',
+        'Grade C or better in every course counted for GPA',
+        s.gpaModules,
+        grades,
+        gradeMap,
+        POINTS.C
+      ),
+      halfCriterion(
+        'first-half-a',
+        'Grade A or better across at least half your GPA credits',
+        s.creditsAtA
+      ),
       gpaCriterion(FIRST_CLASS_GPA),
     ],
   };
@@ -276,35 +320,35 @@ export function assessClasses(activeModules, grades, gradeMap, cgpa) {
     tier,
     label,
     criteria: [
+      degreeCriterion,
       {
         id: `${tier}-credits-at-c`,
-        label: `${R.classCreditsAtC} credits at C or better, including every compulsory course`,
+        label: `${R.classCreditsAtC} credits at C or better`,
         status: thresholdStatus(s.creditsAtC, R.classCreditsAtC, s.ungradedGpaCredits),
         current: s.creditsAtC,
         target: R.classCreditsAtC,
       },
-      {
-        id: `${tier}-remaining-at-d`,
-        label: 'Grade D or better in the remaining courses',
-        status:
-          s.belowD.length > 0
-            ? STATUS.FAILED
-            : s.ungradedGpaCredits > 0
-              ? STATUS.PENDING
-              : STATUS.MET,
-        detail:
-          s.belowD.length > 0
-            ? `${s.belowD.length} course${s.belowD.length > 1 ? 's' : ''} below D`
-            : null,
-        offenders: s.belowD.map((m) => ({ code: m.code, name: m.name, grade: grades[m.code] })),
-      },
-      {
-        id: `${tier}-half-b`,
-        label: 'Grade B or better across at least half your credits',
-        status: thresholdStatus(s.creditsAtB, halfCredits, s.ungradedGpaCredits),
-        current: s.creditsAtB,
-        target: halfCredits,
-      },
+      courseStandard(
+        `${tier}-compulsory-at-c`,
+        'Grade C or better in every compulsory GPA course',
+        compulsory,
+        grades,
+        gradeMap,
+        POINTS.C
+      ),
+      courseStandard(
+        `${tier}-remaining-at-d`,
+        'Grade D or better in the remaining GPA courses',
+        s.gpaModules,
+        grades,
+        gradeMap,
+        POINTS.D
+      ),
+      halfCriterion(
+        `${tier}-half-b`,
+        'Grade B or better across at least half your GPA credits',
+        s.creditsAtB
+      ),
       gpaCriterion(threshold),
     ],
   });
@@ -323,12 +367,44 @@ export function assessClasses(activeModules, grades, gradeMap, cgpa) {
     c.blockers = c.criteria.filter((x) => x.status === STATUS.FAILED);
   });
 
+  // The handbook exceptions require a Board decision; they never award a class.
+  const lowCompulsory = s.belowC.filter((m) => !m.optional);
+  const exceptionCredits = lowCompulsory.reduce((sum, m) => sum + m.cr, 0);
+  const boardConsiderations = [];
+  if (
+    eligibility.eligible &&
+    exceptionCredits > 0 &&
+    exceptionCredits <= 4 &&
+    lowCompulsory.every((m) => ['D', 'D+', 'C-'].includes(grades[m.code]))
+  ) {
+    const otherCriteriaMet = (candidate, excludedId) =>
+      candidate.criteria.filter((c) => c.id !== excludedId).every((c) => c.status === STATUS.MET);
+    const candidate =
+      otherCriteriaMet(first, 'first-all-c') && s.belowC.every((m) => !m.optional)
+        ? classes[1]
+        : otherCriteriaMet(classes[1], 'upper-compulsory-at-c')
+          ? classes[2]
+          : null;
+    if (candidate)
+      boardConsiderations.push({
+        tier: candidate.tier,
+        label: candidate.label,
+        credits: exceptionCredits,
+        offenders: lowCompulsory.map((m) => ({
+          code: m.code,
+          name: m.name,
+          grade: grades[m.code],
+        })),
+      });
+  }
+
   return {
     classes,
     // The best class nothing has ruled out yet.
     highestReachable: classes.find((c) => !c.blocked) ?? null,
     highestAchieved: classes.find((c) => c.achieved) ?? null,
-    complete: s.ungradedGpaCredits === 0,
+    boardConsiderations,
+    complete: eligibility.criteria.every((c) => c.status !== STATUS.PENDING),
   };
 }
 

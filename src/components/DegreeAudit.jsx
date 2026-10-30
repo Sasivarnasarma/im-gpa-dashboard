@@ -75,6 +75,7 @@ export default function DegreeAudit({ eligibility, classes }) {
 
   const blockedClasses = classes.classes.filter((c) => c.blocked);
   const reachable = classes.highestReachable;
+  const boardConsiderations = classes.boardConsiderations ?? [];
   const failedCount = eligibility.failed.length;
 
   return (
@@ -102,7 +103,11 @@ export default function DegreeAudit({ eligibility, classes }) {
             </span>
           ) : (
             <span className="font-mono text-[10px] text-muted-text uppercase">
-              {reachable ? reachable.label : 'No class reachable'}
+              {reachable
+                ? reachable.label
+                : boardConsiderations.length
+                  ? 'Board consideration possible'
+                  : 'No class reachable'}
             </span>
           )}
           <ChevronDown
@@ -125,6 +130,9 @@ export default function DegreeAudit({ eligibility, classes }) {
               ))}
             </ul>
             <p className="text-[10px] text-muted-text mt-2 leading-relaxed">
+              Blank optional modules are treated as not taken.
+            </p>
+            <p className="text-[10px] text-muted-text mt-2 leading-relaxed">
               Not tracked: {eligibility.untrackable.toLowerCase()} — this app holds no enrolment
               dates.
             </p>
@@ -144,16 +152,40 @@ export default function DegreeAudit({ eligibility, classes }) {
               </p>
             ) : (
               <p className="text-[11px] text-tier-risk mb-3 leading-relaxed">
-                No honours class remains reachable with these grades.
+                {boardConsiderations.length
+                  ? 'The standard class requirements are not met with these grades.'
+                  : 'No honours class remains reachable with these grades.'}
               </p>
             )}
+
+            {boardConsiderations.map((candidate) => (
+              <div key={candidate.tier} className="border border-hairline p-3 mb-3">
+                <span className="block text-[10px] font-mono uppercase tracking-wider text-m-blue-light">
+                  Possible Board consideration
+                </span>
+                <p className="text-[11px] text-body-text mt-1 leading-relaxed">
+                  You may qualify for Board of Examiners consideration for {candidate.label}, with{' '}
+                  {candidate.credits} compulsory credits below C. This is not an automatic award.
+                </p>
+                <ul className="text-[10px] font-mono text-muted-text mt-2">
+                  {candidate.offenders.map((course) => (
+                    <li key={course.code}>
+                      {course.code} — {course.grade}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
 
             {blockedClasses.length > 0 && (
               <div className="flex flex-col gap-3">
                 {blockedClasses.map((c) => (
                   <div key={c.tier}>
                     <span className="block text-[10px] font-mono uppercase tracking-wider text-tier-risk mb-1">
-                      {c.label} — ruled out
+                      {c.label} —{' '}
+                      {boardConsiderations.some((candidate) => candidate.tier === c.tier)
+                        ? 'standard requirements not met'
+                        : 'ruled out'}
                     </span>
                     <ul>
                       {c.blockers.map((b) => (
