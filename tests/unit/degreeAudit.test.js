@@ -218,6 +218,45 @@ describe('four-year honours audit', () => {
 });
 
 describe('handbook audit safeguards', () => {
+  it.each([
+    ['it', 'undecided'],
+    ['mit', 'bse'],
+    ['mit', 'oscm'],
+    ['mit', 'is'],
+  ])(
+    'keeps an exact B+ average in Second Upper for %s %s despite floating-point drift',
+    (pathway, specialization) => {
+      const active = getActiveModules(modules, pathway, specialization);
+      const grades = Object.fromEntries(
+        active.map((m) => [m.code, m.gradeType === 'passfail' ? 'Pass' : 'B+'])
+      );
+      const { cgpa } = computeGpaStats(active, grades, gradeMap);
+      expect(cgpa).toBeCloseTo(3.3, 12);
+      const classes = assessClasses(active, grades, gradeMap, cgpa);
+      expect(classes.highestAchieved.tier).toBe('upper');
+      expect(resolveAwardTier(getGpaTier(cgpa, true), classes)).toBe(GPA_TIER.UPPER);
+    }
+  );
+
+  it.each([2, 3, 3.3, 3.7])(
+    'allows calculation drift at %s without promoting a genuinely lower GPA',
+    (threshold) => {
+      const grades = transcript('A');
+      const assess = (gpa) =>
+        threshold === 2
+          ? criterion(assessEligibility(active, grades, gradeMap, gpa), 'min-gpa')
+          : criterion(
+              classFor(
+                assessClasses(active, grades, gradeMap, gpa),
+                threshold === 3 ? 'lower' : threshold === 3.3 ? 'upper' : 'first'
+              ),
+              `gpa-${threshold}`
+            );
+      expect(assess(threshold - 1e-12).status).toBe(STATUS.MET);
+      expect(assess(threshold - 1e-6).status).toBe(STATUS.FAILED);
+    }
+  );
+
   const honourModules = getActiveModules(modules, 'it', 'undecided');
   const passing = Object.fromEntries(
     honourModules.map((m) => [m.code, m.gradeType === 'passfail' ? 'Pass' : 'A'])

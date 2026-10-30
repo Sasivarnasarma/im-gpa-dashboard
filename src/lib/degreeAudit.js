@@ -4,6 +4,7 @@ import {
   SECOND_LOWER_GPA,
   MIN_SAFE_GPA,
   GPA_TIER,
+  meetsGpaThreshold,
 } from './gpaEngine';
 
 // Degree eligibility and classification for three-year exits and four-year honours.
@@ -230,14 +231,13 @@ export function assessEligibility(activeModules, grades, gradeMap, cgpa) {
       label: `Cumulative GPA of ${R.minGpa.toFixed(2)} or above`,
       // Outstanding compulsory courses keep GPA provisional. Untaken electives
       // do not prevent assessment of the current transcript.
-      status:
-        cgpa >= R.minGpa
-          ? s.ungradedRequiredCredits === 0
-            ? STATUS.MET
-            : STATUS.PENDING
-          : s.ungradedRequiredCredits === 0
-            ? STATUS.FAILED
-            : STATUS.PENDING,
+      status: meetsGpaThreshold(cgpa, R.minGpa)
+        ? s.ungradedRequiredCredits === 0
+          ? STATUS.MET
+          : STATUS.PENDING
+        : s.ungradedRequiredCredits === 0
+          ? STATUS.FAILED
+          : STATUS.PENDING,
       current: cgpa,
       target: R.minGpa,
       isGpa: true,
@@ -281,14 +281,13 @@ export function assessClasses(activeModules, grades, gradeMap, cgpa) {
   const gpaCriterion = (threshold) => ({
     id: `gpa-${threshold}`,
     label: `Cumulative GPA of ${threshold.toFixed(2)} or above`,
-    status:
-      cgpa >= threshold
-        ? s.ungradedRequiredCredits === 0
-          ? STATUS.MET
-          : STATUS.PENDING
-        : s.ungradedRequiredCredits === 0
-          ? STATUS.FAILED
-          : STATUS.PENDING,
+    status: meetsGpaThreshold(cgpa, threshold)
+      ? s.ungradedRequiredCredits === 0
+        ? STATUS.MET
+        : STATUS.PENDING
+      : s.ungradedRequiredCredits === 0
+        ? STATUS.FAILED
+        : STATUS.PENDING,
     current: cgpa,
     target: threshold,
     isGpa: true,

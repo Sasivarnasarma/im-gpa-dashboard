@@ -280,16 +280,16 @@ export const TIER_SHORT_LABELS = {
 
 const TIER_EPSILON = 1e-9;
 
-const meetsThreshold = (gpa, threshold) => gpa >= threshold - TIER_EPSILON;
+export const meetsGpaThreshold = (gpa, threshold) => gpa >= threshold - TIER_EPSILON;
 
 // Which honours band a GPA falls in, with a tolerance so a displayed 3.30
 // is not ruled out by floating-point drift.
 export function getGpaTier(gpa, hasGradedCredits) {
   if (!hasGradedCredits) return GPA_TIER.AWAITING;
-  if (meetsThreshold(gpa, FIRST_CLASS_GPA)) return GPA_TIER.FIRST;
-  if (meetsThreshold(gpa, SECOND_UPPER_GPA)) return GPA_TIER.UPPER;
-  if (meetsThreshold(gpa, SECOND_LOWER_GPA)) return GPA_TIER.LOWER;
-  if (meetsThreshold(gpa, MIN_SAFE_GPA)) return GPA_TIER.PASS;
+  if (meetsGpaThreshold(gpa, FIRST_CLASS_GPA)) return GPA_TIER.FIRST;
+  if (meetsGpaThreshold(gpa, SECOND_UPPER_GPA)) return GPA_TIER.UPPER;
+  if (meetsGpaThreshold(gpa, SECOND_LOWER_GPA)) return GPA_TIER.LOWER;
+  if (meetsGpaThreshold(gpa, MIN_SAFE_GPA)) return GPA_TIER.PASS;
   return GPA_TIER.RISK;
 }
 

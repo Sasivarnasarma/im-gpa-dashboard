@@ -1,5 +1,6 @@
 # Patched versions for vulnerable transitive dependencies. Remove each override
 # once parent packages consistently resolve a safe version without it.
 overrides:
-  'undici@>=8.0.0 <8.10.2': '8.10.2'
+  'undici@>=8.0.0 <8.12.2': '8.12.2'
   'source-map-js@<1.2.2': '1.2.2'
+  'serialize-javascript@<7.1.3': '7.1.3'
